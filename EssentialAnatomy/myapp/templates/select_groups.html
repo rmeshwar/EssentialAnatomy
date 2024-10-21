@@ -1,0 +1,95 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Groups</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Select up to 8 Groups/Subgroups</h1>
+    <p id="selection-warning" style="color: red; display: none;">You can select up to 8 groups only.</p>
+
+    <div id="group-selection"></div>
+    <button id="generate-report">Generate PDF</button>
+
+    <script>
+        // Load JSON and create the dropdown structure
+        $.getJSON("{% static 'data/parsed_structure.json' %}", function (data) {
+            function createCheckbox(groupName, fullPath, level, checked = false) {
+                return `<div style="margin-left: ${level * 20}px;">
+                            <input type="checkbox" name="group" value="${groupName}" data-fullPath="${fullPath}" ${checked ? 'checked' : ''}>
+                            ${groupName}
+                        </div>`;
+            }
+
+            function renderGroups(groups, level = 0, parentPath = '') {
+                let html = '';
+                for (let group in groups) {
+                    let fullPath = parentPath ? `${parentPath} / ${group}` : group;
+                    html += createCheckbox(group, fullPath, level);
+                    if (groups[group].subgroups) {
+                        html += renderGroups(groups[group].subgroups, level + 1, fullPath);
+                    }
+                    if (groups[group].specialties && groups[group].specialties.length) {
+                        groups[group].specialties.forEach(specialty => {
+                            let specialtyFullPath = `${fullPath} / ${specialty.name}`;
+                            html += createCheckbox(specialty.name, specialtyFullPath, level + 1);
+                        });
+                    }
+                }
+                return html;
+            }
+            $('#group-selection').html(renderGroups(data));
+        });
+
+        // Ensure no more than 8 selections are checked
+        $(document).on('change', 'input[type="checkbox"]', function () {
+            const checkedCount = $('input[type="checkbox"]:checked').length;
+            if (checkedCount > 8) {
+                $('#selection-warning').show();
+                $(this).prop('checked', false);
+            } else {
+                $('#selection-warning').hide();
+            }
+        });
+
+        // Handle generate report button click
+            $('#generate-report').click(function () {
+                const selectedGroups = [];
+                $('input[type="checkbox"]:checked').each(function () {
+                    selectedGroups.push($(this).data('fullpath')); // Use the full hierarchical path
+                });
+
+                console.log("Selected Groups:", selectedGroups); // to debug
+
+                if (selectedGroups.length > 0) {
+                    // Post selected groups to generate the report
+                    $.ajax({
+                        type: 'POST',
+                        url: '/generate-report/',
+                        data: JSON.stringify({selected_groups: selectedGroups}),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            console.log("Response:", response); // Add this to debug
+                            const link = document.createElement('a');
+                            link.href = response.download_url;
+                            link.download = 'survey_report.pdf';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error generating report:', error); // Add this to debug
+                            alert('Error generating report: ' + error);
+                        }
+                    });
+                } else {
+                    alert('Please select at least one group to generate a report.');
+                }
+            });
+    </script>
+</body>
+</html>

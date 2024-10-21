@@ -1,0 +1,27 @@
+<!-- myapp/templates/section_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Section List</title>
+</head>
+<body>
+    <h1>Sections</h1>
+    <ul>
+        {% for section in sections %}
+            <li>{{ section.name }}
+                <ul>
+                    {% for subsection in section.subsections.all %}
+                        <li>{{ subsection.name }}
+                            <ul>
+                                {% for subsubsection in subsection.sub_subsections.all %}
+                                    <li>{{ subsubsection.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

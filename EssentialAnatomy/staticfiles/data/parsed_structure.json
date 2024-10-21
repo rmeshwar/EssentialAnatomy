@@ -1,0 +1,1128 @@
+{
+    "Anatomist": {
+        "abbr": "ANAT",
+        "subgroups": {
+            "Anatomy Graduate": {
+                "abbr": "GRD",
+                "specialties": []
+            },
+            "Chiropractic": {
+                "abbr": "CH",
+                "specialties": []
+            },
+            "Dentistry": {
+                "abbr": "DDS",
+                "specialties": []
+            },
+            "Medicine - Allopathic": {
+                "abbr": "MD",
+                "specialties": []
+            },
+            "Medicine - Osteopathic": {
+                "abbr": "DO",
+                "specialties": []
+            },
+            "Nursing": {
+                "abbr": "N",
+                "specialties": []
+            },
+            "Occupational Therapy": {
+                "abbr": "OT",
+                "specialties": []
+            },
+            "Pharmacy": {
+                "abbr": "PH",
+                "specialties": []
+            },
+            "Physical Therapy": {
+                "abbr": "PT",
+                "specialties": []
+            },
+            "Physician Assistant": {
+                "abbr": "PA",
+                "specialties": []
+            },
+            "Undergraduate": {
+                "abbr": "UG",
+                "specialties": []
+            },
+            "MISC": {
+                "abbr": "M",
+                "specialties": []
+            }
+        }
+    },
+    "Clinician": {
+        "abbr": "CLIN",
+        "subgroups": {
+            "Dentistry": {
+                "abbr": "DDS",
+                "specialties": [
+                    {
+                        "name": "Dental Anesthesiology",
+                        "abbr": "DA"
+                    },
+                    {
+                        "name": "Dental Public Health",
+                        "abbr": "DPH"
+                    },
+                    {
+                        "name": "Endodontics",
+                        "abbr": "E"
+                    },
+                    {
+                        "name": "Oral and Maxillofacial Pathology",
+                        "abbr": "OAMP"
+                    },
+                    {
+                        "name": "Oral and Maxillofacial Radiology",
+                        "abbr": "OAMR"
+                    },
+                    {
+                        "name": "Oral and Maxillofacial Surgery",
+                        "abbr": "OAMS"
+                    },
+                    {
+                        "name": "Oral Medicine",
+                        "abbr": "OM"
+                    },
+                    {
+                        "name": "Orofacial Pain",
+                        "abbr": "OP"
+                    },
+                    {
+                        "name": "Orthodontics and Dentofacial Orthopedics",
+                        "abbr": "OADO"
+                    },
+                    {
+                        "name": "Periodontics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Pediatric Dentistry",
+                        "abbr": "PD"
+                    },
+                    {
+                        "name": "Prosthodontics",
+                        "abbr": "P"
+                    }
+                ]
+            },
+            "Medicine - Allopathic": {
+                "abbr": "MD",
+                "specialties": [
+                    {
+                        "name": "Anesthesiology",
+                        "abbr": "A"
+                    },
+                    {
+                        "name": "Dermatology",
+                        "abbr": "D"
+                    },
+                    {
+                        "name": "Diagnostic Radiology",
+                        "abbr": "DR"
+                    },
+                    {
+                        "name": "Emergency Medicine",
+                        "abbr": "EM"
+                    },
+                    {
+                        "name": "Family Medicine",
+                        "abbr": "FM"
+                    },
+                    {
+                        "name": "General Surgery",
+                        "abbr": "GS"
+                    },
+                    {
+                        "name": "Internal Medicine",
+                        "abbr": "IM"
+                    },
+                    {
+                        "name": "Neurological Surgery",
+                        "abbr": "NS"
+                    },
+                    {
+                        "name": "Neurology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Obstetrics and Gynecology",
+                        "abbr": "OAG"
+                    },
+                    {
+                        "name": "Orthopaedic Surgery",
+                        "abbr": "OS"
+                    },
+                    {
+                        "name": "Otolaryngology-Head and Neck Surgery",
+                        "abbr": "OANS"
+                    },
+                    {
+                        "name": "Pathology",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Physical Medicine and Rehabilitation",
+                        "abbr": "PMAR"
+                    },
+                    {
+                        "name": "Plastic Surgery",
+                        "abbr": "PS"
+                    },
+                    {
+                        "name": "Psychiatry",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Thoracic Surgery/Thoracic and Cardiac Surgery",
+                        "abbr": "TSACS"
+                    },
+                    {
+                        "name": "Urology",
+                        "abbr": "U"
+                    }
+                ]
+            },
+            "Medicine - Osteopathic": {
+                "abbr": "DO",
+                "specialties": [
+                    {
+                        "name": "Anesthesiology",
+                        "abbr": "A"
+                    },
+                    {
+                        "name": "Dermatology",
+                        "abbr": "D"
+                    },
+                    {
+                        "name": "Diagnostic Radiology",
+                        "abbr": "DR"
+                    },
+                    {
+                        "name": "Emergency Medicine",
+                        "abbr": "EM"
+                    },
+                    {
+                        "name": "Family Medicine",
+                        "abbr": "FM"
+                    },
+                    {
+                        "name": "General Surgery",
+                        "abbr": "GS"
+                    },
+                    {
+                        "name": "Internal Medicine",
+                        "abbr": "IM"
+                    },
+                    {
+                        "name": "Neurological Surgery",
+                        "abbr": "NS"
+                    },
+                    {
+                        "name": "Neurology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Obstetrics and Gynecology",
+                        "abbr": "OAG"
+                    },
+                    {
+                        "name": "Orthopaedic Surgery",
+                        "abbr": "OS"
+                    },
+                    {
+                        "name": "Otolaryngology-Head and Neck Surgery",
+                        "abbr": "OANS"
+                    },
+                    {
+                        "name": "Pathology",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Physical Medicine and Rehabilitation",
+                        "abbr": "PMAR"
+                    },
+                    {
+                        "name": "Plastic Surgery",
+                        "abbr": "PS"
+                    },
+                    {
+                        "name": "Psychiatry",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Thoracic Surgery/Thoracic and Cardiac Surgery",
+                        "abbr": "TSACS"
+                    },
+                    {
+                        "name": "Urology",
+                        "abbr": "U"
+                    }
+                ]
+            },
+            "Nursing": {
+                "abbr": "N",
+                "specialties": [
+                    {
+                        "name": "Advanced Practice Registered Nursing (APRN)",
+                        "abbr": "APRN("
+                    },
+                    {
+                        "name": "Ambulatory Care Nursing",
+                        "abbr": "ACN"
+                    },
+                    {
+                        "name": "Business in Nursing",
+                        "abbr": "BIN"
+                    },
+                    {
+                        "name": "Bariatric Nurse",
+                        "abbr": "BN"
+                    },
+                    {
+                        "name": "Camp Nursing",
+                        "abbr": "CN"
+                    },
+                    {
+                        "name": "Cardiac Care Nursing",
+                        "abbr": "CCN"
+                    },
+                    {
+                        "name": "Cardiac Cath Lab Nursing",
+                        "abbr": "CCLN"
+                    },
+                    {
+                        "name": "Case Management Nursing",
+                        "abbr": "CMN"
+                    },
+                    {
+                        "name": "Clinical Nurse Leader",
+                        "abbr": "CNL"
+                    },
+                    {
+                        "name": "Clinical Nurse Specialist",
+                        "abbr": "CNS"
+                    },
+                    {
+                        "name": "Community Health Nursing",
+                        "abbr": "CHN"
+                    },
+                    {
+                        "name": "Complementary Health Nursing",
+                        "abbr": "CHN"
+                    },
+                    {
+                        "name": "Correctional Facility Nursing",
+                        "abbr": "CFN"
+                    },
+                    {
+                        "name": "Critical Care Nursing",
+                        "abbr": "CCN"
+                    },
+                    {
+                        "name": "Dermatology Nursing",
+                        "abbr": "DN"
+                    },
+                    {
+                        "name": "Developmental Disability Nursing",
+                        "abbr": "DDN"
+                    },
+                    {
+                        "name": "Diabetes Nursing",
+                        "abbr": "DN"
+                    },
+                    {
+                        "name": "Dialysis Nursing",
+                        "abbr": "DN"
+                    },
+                    {
+                        "name": "Domestic  Keeolence Nursing",
+                        "abbr": "DVN"
+                    },
+                    {
+                        "name": "Emergency Nursing",
+                        "abbr": "EN"
+                    },
+                    {
+                        "name": "Ethics in Nursing",
+                        "abbr": "EIN"
+                    },
+                    {
+                        "name": "Family Nurse Practitioner",
+                        "abbr": "FNP"
+                    },
+                    {
+                        "name": "Flight/Transport Nursing",
+                        "abbr": "FN"
+                    },
+                    {
+                        "name": "Forensic Nursing",
+                        "abbr": "FN"
+                    },
+                    {
+                        "name": "Gastroenterology Nursing",
+                        "abbr": "GN"
+                    },
+                    {
+                        "name": "Genetics Nursing",
+                        "abbr": "GN"
+                    },
+                    {
+                        "name": "Geriatric Nursing",
+                        "abbr": "GN"
+                    },
+                    {
+                        "name": "Gerontological Nurse Practitioner",
+                        "abbr": "GNP"
+                    },
+                    {
+                        "name": "Gynecology/Obstetric Nursing",
+                        "abbr": "GN"
+                    },
+                    {
+                        "name": "Health Policy Nursing",
+                        "abbr": "HPN"
+                    },
+                    {
+                        "name": "Hematology Nursing",
+                        "abbr": "HN"
+                    },
+                    {
+                        "name": "HIV/AIDS Nursing",
+                        "abbr": "HN"
+                    },
+                    {
+                        "name": "Holistic Nursing",
+                        "abbr": "HN"
+                    },
+                    {
+                        "name": "Home Health Care Nursing",
+                        "abbr": "HHCN"
+                    },
+                    {
+                        "name": "Hospice/Palliative Nursing",
+                        "abbr": "HN"
+                    },
+                    {
+                        "name": "Independent Nurse Contractor",
+                        "abbr": "INC"
+                    },
+                    {
+                        "name": "Infection Control Nursing",
+                        "abbr": "ICN"
+                    },
+                    {
+                        "name": "Informatics Nursing",
+                        "abbr": "IN"
+                    },
+                    {
+                        "name": "Infusion Nursing",
+                        "abbr": "IN"
+                    },
+                    {
+                        "name": "International Nursing",
+                        "abbr": "IN"
+                    },
+                    {
+                        "name": "Labor and Delivery Nursing",
+                        "abbr": "LADN"
+                    },
+                    {
+                        "name": "Lactation Consultation",
+                        "abbr": "LC"
+                    },
+                    {
+                        "name": "Legal Nurse Consultant",
+                        "abbr": "LNC"
+                    },
+                    {
+                        "name": "Licensed Practical Nursing (LPN or LVN)",
+                        "abbr": "LPN(OL"
+                    },
+                    {
+                        "name": "Life-Care Planning Nursing",
+                        "abbr": "LPN"
+                    },
+                    {
+                        "name": "Long-Term Care Nursing",
+                        "abbr": "LCN"
+                    },
+                    {
+                        "name": "Managed Care Nursing",
+                        "abbr": "MCN"
+                    },
+                    {
+                        "name": "Medical-Surgical Nursing",
+                        "abbr": "MN"
+                    },
+                    {
+                        "name": "Military and Uniformed Service Nursing",
+                        "abbr": "MAUSN"
+                    },
+                    {
+                        "name": "Missionary Nursing",
+                        "abbr": "MN"
+                    },
+                    {
+                        "name": "Neonatal Intensive Care Nursing",
+                        "abbr": "NICN"
+                    },
+                    {
+                        "name": "Nephrology Nursing",
+                        "abbr": "NN"
+                    },
+                    {
+                        "name": "Neuroscience Nursing",
+                        "abbr": "NN"
+                    },
+                    {
+                        "name": "Nurse Anesthetist",
+                        "abbr": "NA"
+                    },
+                    {
+                        "name": "Nurse Attorney",
+                        "abbr": "NA"
+                    },
+                    {
+                        "name": "Nurse Educator",
+                        "abbr": "NE"
+                    },
+                    {
+                        "name": "Nurse Legislator",
+                        "abbr": "NL"
+                    },
+                    {
+                        "name": "Nurse Midwife",
+                        "abbr": "NM"
+                    },
+                    {
+                        "name": "Nurse Practitioner",
+                        "abbr": "NP"
+                    },
+                    {
+                        "name": "Nurse Researcher",
+                        "abbr": "NR"
+                    },
+                    {
+                        "name": "Nurse Advocacy",
+                        "abbr": "NA"
+                    },
+                    {
+                        "name": "Nursing Entrepreneur",
+                        "abbr": "NE"
+                    },
+                    {
+                        "name": "Nursing Executive and Nursing CEO",
+                        "abbr": "NEANC"
+                    },
+                    {
+                        "name": "Nursing Manager and Nursing Administration",
+                        "abbr": "NMANA"
+                    },
+                    {
+                        "name": "Nursing Quality Improvement",
+                        "abbr": "NQI"
+                    },
+                    {
+                        "name": "Nursing Writer, Author, or Historian",
+                        "abbr": "NWAOH"
+                    },
+                    {
+                        "name": "Occupational Health Nurse",
+                        "abbr": "OHN"
+                    },
+                    {
+                        "name": "Oncology Nursing (Cancer Nursing)",
+                        "abbr": "ON(N"
+                    },
+                    {
+                        "name": "Operating Room Nursing (Perioperative Nursing)",
+                        "abbr": "ORN(N"
+                    },
+                    {
+                        "name": "Ophthalmic Nursing",
+                        "abbr": "ON"
+                    },
+                    {
+                        "name": "Orthopedic Nursing",
+                        "abbr": "ON"
+                    },
+                    {
+                        "name": "Otorhinolaryngology Nursing (Head and Neck Nursing)",
+                        "abbr": "ON(ANN"
+                    },
+                    {
+                        "name": "Overseas, Volunteer, Missionary, or Refugee Nursing",
+                        "abbr": "OVMORN"
+                    },
+                    {
+                        "name": "Pain Management Nursing",
+                        "abbr": "PMN"
+                    },
+                    {
+                        "name": "Parish Nursing",
+                        "abbr": "PN"
+                    },
+                    {
+                        "name": "Pediatric Endocrinology Nursing",
+                        "abbr": "PEN"
+                    },
+                    {
+                        "name": "Pediatric Nurse Practitioner",
+                        "abbr": "PNP"
+                    },
+                    {
+                        "name": "Pediatric Nurse",
+                        "abbr": "PN"
+                    },
+                    {
+                        "name": "Perianesthesia Nursing (Preanesthesia and Postanesthesia Nursing)",
+                        "abbr": "PN(APN"
+                    },
+                    {
+                        "name": "Perinatal Nursing",
+                        "abbr": "PN"
+                    },
+                    {
+                        "name": "Plastic Surgery Nursing",
+                        "abbr": "PSN"
+                    },
+                    {
+                        "name": "Poison Information Specialist",
+                        "abbr": "PIS"
+                    },
+                    {
+                        "name": "Psychiatric Nurse Practitioner",
+                        "abbr": "PNP"
+                    },
+                    {
+                        "name": "Psychiatric Nursing",
+                        "abbr": "PN"
+                    },
+                    {
+                        "name": "Public Health Nurse",
+                        "abbr": "PHN"
+                    },
+                    {
+                        "name": "Pulmonary Care Nursing (Respiratory Nursing)",
+                        "abbr": "PCN(N"
+                    },
+                    {
+                        "name": "Radiology Nursing",
+                        "abbr": "RN"
+                    },
+                    {
+                        "name": "Registered Nurse (RN)",
+                        "abbr": "RN("
+                    },
+                    {
+                        "name": "Rehabilitation Nursing",
+                        "abbr": "RN"
+                    },
+                    {
+                        "name": "Reproductive Nursing",
+                        "abbr": "RN"
+                    },
+                    {
+                        "name": "Rheumatology Nursing",
+                        "abbr": "RN"
+                    },
+                    {
+                        "name": "Sexual Assault Nurse Examiner",
+                        "abbr": "SANE"
+                    },
+                    {
+                        "name": "School Nursing",
+                        "abbr": "SN"
+                    },
+                    {
+                        "name": "Subacute Nursing",
+                        "abbr": "SN"
+                    },
+                    {
+                        "name": "Substance Abuse Nursing",
+                        "abbr": "SAN"
+                    },
+                    {
+                        "name": "Supplemental/Agency Nursing",
+                        "abbr": "SN"
+                    },
+                    {
+                        "name": "Surgical Nursing",
+                        "abbr": "SN"
+                    },
+                    {
+                        "name": "Telemetry Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Telephone Triage Nursing",
+                        "abbr": "TTN"
+                    },
+                    {
+                        "name": "Toxicology Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Transcultural Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Transplant Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Trauma Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Travel Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Triage Nursing",
+                        "abbr": "TN"
+                    },
+                    {
+                        "name": "Urologic Nursing",
+                        "abbr": "UN"
+                    }
+                ]
+            },
+            "Occupational Therapy": {
+                "abbr": "OT",
+                "specialties": [
+                    {
+                        "name": "Acute and Critical Care",
+                        "abbr": "AACC"
+                    },
+                    {
+                        "name": "Assistive Technology",
+                        "abbr": "AT"
+                    },
+                    {
+                        "name": "Burns",
+                        "abbr": "B"
+                    },
+                    {
+                        "name": "Dysphagia",
+                        "abbr": "D"
+                    },
+                    {
+                        "name": "Gerontology",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "Hand Therapy and Upper Extremity",
+                        "abbr": "HTAUE"
+                    },
+                    {
+                        "name": "Lymphedema",
+                        "abbr": "L"
+                    },
+                    {
+                        "name": "Mental Health",
+                        "abbr": "MH"
+                    },
+                    {
+                        "name": "Neurology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Physical Rehabilitation",
+                        "abbr": "PR"
+                    }
+                ]
+            },
+            "Pharmacy": {
+                "abbr": "PH",
+                "specialties": [
+                    {
+                        "name": "Adult Medicine",
+                        "abbr": "AM"
+                    },
+                    {
+                        "name": "Ambulatory Care",
+                        "abbr": "AC"
+                    },
+                    {
+                        "name": "Cardiology",
+                        "abbr": "C"
+                    },
+                    {
+                        "name": "Central Nervous System",
+                        "abbr": "CNS"
+                    },
+                    {
+                        "name": "Clinical Administration",
+                        "abbr": "CA"
+                    },
+                    {
+                        "name": "Community Practice",
+                        "abbr": "CP"
+                    },
+                    {
+                        "name": "Critical Care",
+                        "abbr": "CC"
+                    },
+                    {
+                        "name": "Drug Information and Informatics",
+                        "abbr": "DIAI"
+                    },
+                    {
+                        "name": "Education and Training",
+                        "abbr": "EAT"
+                    },
+                    {
+                        "name": "Emergency Medicine",
+                        "abbr": "EM"
+                    },
+                    {
+                        "name": "Endocrinology",
+                        "abbr": "E"
+                    },
+                    {
+                        "name": "Geriatrics",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "GI/Liver/Nutrition",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "Global Health",
+                        "abbr": "GH"
+                    },
+                    {
+                        "name": "Health Equity",
+                        "abbr": "HE"
+                    },
+                    {
+                        "name": "Health Outcomes",
+                        "abbr": "HO"
+                    },
+                    {
+                        "name": "Hematology/Oncology",
+                        "abbr": "H"
+                    },
+                    {
+                        "name": "HIV",
+                        "abbr": "H"
+                    },
+                    {
+                        "name": "Immunology/Transplantation",
+                        "abbr": "I"
+                    },
+                    {
+                        "name": "Infectious Disease",
+                        "abbr": "ID"
+                    },
+                    {
+                        "name": "Nephrology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Pain and Palliative Care",
+                        "abbr": "PAPC"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Perioperative Care",
+                        "abbr": "PC"
+                    },
+                    {
+                        "name": "Pharmaceutical Industry",
+                        "abbr": "PI"
+                    },
+                    {
+                        "name": "Pharmacokinetics/Pharmacodynamics/Pharmacogenetics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Pulmonary",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Women's Health",
+                        "abbr": "WH"
+                    }
+                ]
+            },
+            "Physical Therapy": {
+                "abbr": "PT",
+                "specialties": [
+                    {
+                        "name": "Cardiovascular & Pulmonary",
+                        "abbr": "C&P"
+                    },
+                    {
+                        "name": "Clinical Electrophysiology",
+                        "abbr": "CE"
+                    },
+                    {
+                        "name": "Geriatrics",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "Neurology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Oncology",
+                        "abbr": "O"
+                    },
+                    {
+                        "name": "Orthopaedics",
+                        "abbr": "O"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Sports Medicine",
+                        "abbr": "SM"
+                    },
+                    {
+                        "name": "Women's Health",
+                        "abbr": "WH"
+                    },
+                    {
+                        "name": "Wound Management",
+                        "abbr": "WM"
+                    }
+                ]
+            },
+            "Physician Assistant": {
+                "abbr": "PA",
+                "specialties": [
+                    {
+                        "name": "Addiction Medicine",
+                        "abbr": "AM"
+                    },
+                    {
+                        "name": "Allergy & Immunology",
+                        "abbr": "A&I"
+                    },
+                    {
+                        "name": "Anesthesiology",
+                        "abbr": "A"
+                    },
+                    {
+                        "name": "Bariatric Surgery",
+                        "abbr": "BS"
+                    },
+                    {
+                        "name": "Cardiology",
+                        "abbr": "C"
+                    },
+                    {
+                        "name": "Cardiovascular/Cardiothoracic Surgery",
+                        "abbr": "CS"
+                    },
+                    {
+                        "name": "Colon & Rectal Surgery",
+                        "abbr": "C&RS"
+                    },
+                    {
+                        "name": "Critical Care",
+                        "abbr": "CC"
+                    },
+                    {
+                        "name": "Dermatology",
+                        "abbr": "D"
+                    },
+                    {
+                        "name": "Emergency Medicine",
+                        "abbr": "EM"
+                    },
+                    {
+                        "name": "Endocrinology",
+                        "abbr": "E"
+                    },
+                    {
+                        "name": "Family Medicine - Primary Care",
+                        "abbr": "FM-PC"
+                    },
+                    {
+                        "name": "Gastroenterology",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "General Surgery",
+                        "abbr": "GS"
+                    },
+                    {
+                        "name": "Genetics",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "Geriatrics",
+                        "abbr": "G"
+                    },
+                    {
+                        "name": "Hematology & Oncology",
+                        "abbr": "H&O"
+                    },
+                    {
+                        "name": "Hospice & Palliative Care",
+                        "abbr": "H&PC"
+                    },
+                    {
+                        "name": "Hospital Medicine",
+                        "abbr": "HM"
+                    },
+                    {
+                        "name": "Infectious Disease",
+                        "abbr": "ID"
+                    },
+                    {
+                        "name": "Internal Medicine, General - Primary Care",
+                        "abbr": "IMG-PC"
+                    },
+                    {
+                        "name": "Nephrology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Neurology",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Neurosurgery",
+                        "abbr": "N"
+                    },
+                    {
+                        "name": "Nuclear Medicine",
+                        "abbr": "NM"
+                    },
+                    {
+                        "name": "Obstetrics & Gynecology",
+                        "abbr": "O&G"
+                    },
+                    {
+                        "name": "Occupational Medicine",
+                        "abbr": "OM"
+                    },
+                    {
+                        "name": "Oncology Surgery",
+                        "abbr": "OS"
+                    },
+                    {
+                        "name": "Ophthalmology",
+                        "abbr": "O"
+                    },
+                    {
+                        "name": "Orthopaedic Surgery",
+                        "abbr": "OS"
+                    },
+                    {
+                        "name": "Otolaryngology",
+                        "abbr": "O"
+                    },
+                    {
+                        "name": "Pain Management",
+                        "abbr": "PM"
+                    },
+                    {
+                        "name": "Pathology",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Pediatric Surgery",
+                        "abbr": "PS"
+                    },
+                    {
+                        "name": "Pediatrics",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Physical Medicine & Rehabilitation",
+                        "abbr": "PM&R"
+                    },
+                    {
+                        "name": "Plastic Surgery",
+                        "abbr": "PS"
+                    },
+                    {
+                        "name": "Preventive Medicine",
+                        "abbr": "PM"
+                    },
+                    {
+                        "name": "Psychiatry",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Public Health",
+                        "abbr": "PH"
+                    },
+                    {
+                        "name": "Pulmonology",
+                        "abbr": "P"
+                    },
+                    {
+                        "name": "Radiation Oncology",
+                        "abbr": "RO"
+                    },
+                    {
+                        "name": "Radiology",
+                        "abbr": "R"
+                    },
+                    {
+                        "name": "Rheumatology",
+                        "abbr": "R"
+                    },
+                    {
+                        "name": "Surgical Subspecialties (other)",
+                        "abbr": "SS("
+                    },
+                    {
+                        "name": "Thoracic Surgery",
+                        "abbr": "TS"
+                    },
+                    {
+                        "name": "Transplant Surgery",
+                        "abbr": "TS"
+                    },
+                    {
+                        "name": "Trauma Surgery",
+                        "abbr": "TS"
+                    },
+                    {
+                        "name": "Urgent Care",
+                        "abbr": "UC"
+                    },
+                    {
+                        "name": "Urology",
+                        "abbr": "U"
+                    },
+                    {
+                        "name": "Vascular Surgery",
+                        "abbr": "VS"
+                    }
+                ]
+            },
+            "MISC": {
+                "abbr": "MISC",
+                "specialties": []
+            }
+        }
+    }
+}
