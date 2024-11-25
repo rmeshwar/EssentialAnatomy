@@ -9,8 +9,6 @@ import traceback
 
 
 def select_groups(request):
-    # The JSON file is now part of static files, so there is no need to directly load it here.
-    # The template will load it via JavaScript using the static URL.
     return render(request, 'select_groups.html')
 
 
@@ -18,16 +16,16 @@ def select_groups(request):
 def generate_report(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        selected_groups = data.get('selected_groups')
-        print(f"Frontend Selected Groups (Backend): {selected_groups}")
+        selected_columns = data.get('selected_columns')
+        print(f"Frontend Selected Columns (Backend): {selected_columns}")
 
-        # Run the command to generate the report based on selected groups
+        # Run the command to generate the report based on selected columns
         try:
             # Define a path to save the report in the static files directory
             static_report_path = os.path.join(settings.BASE_DIR, 'EssentialAnatomy', 'static', 'survey_report_combined.pdf')
 
             # Call the management command with the selected categories and specify the output path
-            call_command('generate_report', *['--categories'] + selected_groups)
+            call_command('generate_report', *['--columns'] + selected_columns)
 
             # Move the generated report to the static folder for easy download
             if os.path.exists("survey_report_combined.pdf"):

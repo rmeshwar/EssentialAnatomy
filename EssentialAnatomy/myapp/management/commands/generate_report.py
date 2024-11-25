@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--categories',
+            '--columns',
             nargs='+',
             type=str,
             help='Program categories to include in the report (e.g., "Anatomist", "Clinician / Medicine - Allopathic", etc.)',
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        categories = [category.strip() for category in kwargs['categories']]
+        columns = [column.strip() for column in kwargs['columns']]
 
         # Load parsed_structure.json to handle main groups and subgroups
         try:
@@ -76,33 +76,33 @@ class Command(BaseCommand):
 
         # Match input categories with the expanded structure
         processed_responses = []
-        for category in categories:
-            if category in expanded_categories:
-                matched_category = expanded_categories[category]
-                if "Anatomist" in category:
+        for column in columns:
+            if column in expanded_categories:
+                matched_category = expanded_categories[column]
+                if "Anatomist" in column:
                     processed_responses.append(
                         {
                             "model": ProcessedResponseAnatomy,
                             "label": matched_category['label'],
-                            "full_key": category,  # Store the full hierarchical key
+                            "full_key": column,  # Store the full hierarchical key
                             "is_anatomist": True,
                             "query": {}
                         }
                     )
-                elif category == "Clinician":
+                elif column == "Clinician":
                     # For the general Clinician category, include all responses without specific filtering
                     processed_responses.append(
                         {
                             "model": ProcessedResponseClinician,
                             "label": "Clinician",
-                            "full_key": category,
+                            "full_key": column,
                             "is_anatomist": False,
                             "query": {}  # No filter for general clinician category
                         }
                     )
-                elif "Clinician" in category:
+                elif "Clinician" in column:
                     # Split the category to identify whether it's a specific primary field or just the professional health program
-                    category_parts = category.split(" / ")
+                    category_parts = column.split(" / ")
                     if len(category_parts) == 3:
                         # This is for a more specific category that includes a primary field, like "Anesthesiology"
                         professional_health_program = category_parts[1]
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                             {
                                 "model": ProcessedResponseClinician,
                                 "label": matched_category['label'],
-                                "full_key": category,
+                                "full_key": column,
                                 "is_anatomist": False,
                                 "query": {
                                     "professional_health_program": professional_health_program,
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                             {
                                 "model": ProcessedResponseClinician,
                                 "label": matched_category['label'],
-                                "full_key": category,
+                                "full_key": column,
                                 "is_anatomist": False,
                                 "query": {
                                     "professional_health_program": matched_category['label']
