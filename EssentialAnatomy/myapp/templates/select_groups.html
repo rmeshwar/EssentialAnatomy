@@ -5,91 +5,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Groups</title>
+    <title>Select Columns for Report</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #selected-columns-preview {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 20px;
+            max-width: 600px;
+        }
+
+        /* Popup container style */
+        #popup-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 2px solid black;
+            width: 400px;
+            max-height: 80vh; /* Adjust this for maximum height */
+            overflow-y: auto; /* Allow vertical scrolling */
+        }
+
+        .toggle {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sub-group {
+            margin-left: 20px;
+        }
+
+        .select-column {
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Select up to 8 Groups/Subgroups</h1>
-    <p id="selection-warning" style="color: red; display: none;">You can select up to 8 groups only.</p>
-
-    <div id="group-selection"></div>
+    <h1>Select Columns for Your Report (Up to 9 Columns)</h1>
+    <button id="add-column">Add Column</button>
+    <div id="selected-columns-preview">
+        <h3>Selected Columns (Preview):</h3>
+        <table id="column-preview-table" border="1">
+            <thead>
+                <tr id="column-headers">
+                    <!-- Column headers will be inserted here -->
+                </tr>
+            </thead>
+        </table>
+    </div>
     <button id="generate-report">Generate PDF</button>
 
     <script>
-        // Load JSON and create the dropdown structure
-        $.getJSON("{% static 'data/parsed_structure.json' %}", function (data) {
-            function createCheckbox(groupName, fullPath, level, checked = false) {
-                return `<div style="margin-left: ${level * 20}px;">
-                            <input type="checkbox" name="group" value="${groupName}" data-fullPath="${fullPath}" ${checked ? 'checked' : ''}>
-                            ${groupName}
-                        </div>`;
-            }
+        // Array to hold selected columns
+        let selectedColumns = [];
 
-            function renderGroups(groups, level = 0, parentPath = '') {
-                let html = '';
-                for (let group in groups) {
-                    let fullPath = parentPath ? `${parentPath} / ${group}` : group;
-                    html += createCheckbox(group, fullPath, level);
+        // Function to create the popup for selecting columns
+        function createPopup(data) {
+            let html = '<div id="popup-container">';
+            html += '<h3>Select Column</h3>';
+            html += renderGroups(data); // Render the hierarchical data structure
+            html += '<button id="close-popup">Close</button>';
+            html += '</div>';
+
+            $('body').append(html);
+
+            // Toggle visibility of sub-groups
+            $('.toggle').click(function () {
+                const group = $(this).data('group');
+                const subGroupElement = $(`.sub-group[data-group="${group}"]`);
+                if (subGroupElement.is(':visible')) {
+                    $(this).text(`${group} [+]`);
+                    subGroupElement.hide();
+                } else {
+                    $(this).text(`${group} [-]`);
+                    subGroupElement.show();
+                }
+            });
+
+            // Add event listener to close the popup
+            $('#close-popup').click(function () {
+                $('#popup-container').remove();
+            });
+
+            // Add event listener to select column
+            $('.select-column').click(function () {
+                const columnName = $(this).data('column');
+                if (selectedColumns.length < 9) {
+                    selectedColumns.push(columnName);
+                    updateSelectedColumnsPreview();
+                } else {
+                    alert('You can only select up to 9 columns.');
+                }
+                $('#popup-container').remove();
+            });
+        }
+
+        // Render groups and subgroups dynamically
+        function renderGroups(groups, level = 0, parentPath = '') {
+            let html = '';
+            for (let group in groups) {
+                let fullPath = parentPath ? `${parentPath} / ${group}` : group;
+
+                // For Anatomist: display professional_health_programs (subgroups) and specialties
+                if (group === 'Anatomist') {
+                    html += `<div style="margin-left: ${level * 20}px;">
+                                <span class="toggle" data-group="${fullPath}" style="cursor: pointer;">${group} [+]</span>
+                                <div class="sub-group" data-group="${fullPath}" style="display: none;">`;
+
+                    // Check and display Professional Health Programs for Anatomists
+                    if (groups[group].subgroups) {
+                        for (let program in groups[group].subgroups) {
+                            let programFullPath = `${fullPath} / ${program}`;
+                            html += `<div class="column-option" style="margin-bottom: 10px;">
+                                        <button class="select-column" data-column="${programFullPath}">${program}</button>
+                                     </div>`;
+                        }
+                    }
+
+                    html += `</div></div>`;
+                } else {
+                    // Clinician or other groups with subgroups and specialties should be expandable
+                    html += `<div style="margin-left: ${level * 20}px;">
+                                <span class="toggle" data-group="${fullPath}" style="cursor: pointer;">${group} [+]</span>
+                                <button class="select-column" data-column="${fullPath}" style="margin-left: 10px;">Select ${group}</button>
+                                <div class="sub-group" data-group="${fullPath}" style="display: none; margin-left: 20px;">`;
+
                     if (groups[group].subgroups) {
                         html += renderGroups(groups[group].subgroups, level + 1, fullPath);
                     }
+
                     if (groups[group].specialties && groups[group].specialties.length) {
                         groups[group].specialties.forEach(specialty => {
                             let specialtyFullPath = `${fullPath} / ${specialty.name}`;
-                            html += createCheckbox(specialty.name, specialtyFullPath, level + 1);
+                            html += `<div class="column-option" style="margin-bottom: 10px;">
+                                        <button class="select-column" data-column="${specialtyFullPath}">${specialty.name}</button>
+                                     </div>`;
                         });
                     }
+
+                    html += `</div></div>`;
                 }
-                return html;
             }
-            $('#group-selection').html(renderGroups(data));
+            return html;
+        }
+
+        // Update the preview table with selected columns
+        function updateSelectedColumnsPreview() {
+            const headersRow = $('#column-headers');
+            headersRow.empty();
+            selectedColumns.forEach(column => {
+                headersRow.append(`<th>${column}</th>`);
+            });
+        }
+
+        // Handle "Add Column" button click
+        $('#add-column').click(function () {
+            // Load the JSON structure and open the popup dynamically
+            $.getJSON("{% static 'data/parsed_structure.json' %}", function (data) {
+                createPopup(data);
+            });
         });
 
-        // Ensure no more than 8 selections are checked
-        $(document).on('change', 'input[type="checkbox"]', function () {
-            const checkedCount = $('input[type="checkbox"]:checked').length;
-            if (checkedCount > 8) {
-                $('#selection-warning').show();
-                $(this).prop('checked', false);
-            } else {
-                $('#selection-warning').hide();
+        // Handle "Generate PDF" button click
+        $('#generate-report').click(function () {
+            if (selectedColumns.length === 0) {
+                alert('Please select at least one column to generate a report.');
+                return;
             }
-        });
 
-        // Handle generate report button click
-            $('#generate-report').click(function () {
-                const selectedGroups = [];
-                $('input[type="checkbox"]:checked').each(function () {
-                    selectedGroups.push($(this).data('fullpath')); // Use the full hierarchical path
-                });
+            console.log("Selected Columns:", selectedColumns); // to debug
 
-                console.log("Selected Groups:", selectedGroups); // to debug
-
-                if (selectedGroups.length > 0) {
-                    // Post selected groups to generate the report
-                    $.ajax({
-                        type: 'POST',
-                        url: '/generate-report/',
-                        data: JSON.stringify({selected_groups: selectedGroups}),
-                        contentType: 'application/json',
-                        success: function (response) {
-                            console.log("Response:", response); // Add this to debug
-                            const link = document.createElement('a');
-                            link.href = response.download_url;
-                            link.download = 'survey_report.pdf';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error generating report:', error); // Add this to debug
-                            alert('Error generating report: ' + error);
-                        }
-                    });
-                } else {
-                    alert('Please select at least one group to generate a report.');
+            // Post selected columns to generate the report
+            $.ajax({
+                type: 'POST',
+                url: '/generate-report/',
+                data: JSON.stringify({selected_columns: selectedColumns}),
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log("Response:", response); // Add this to debug
+                    const link = document.createElement('a');
+                    link.href = response.download_url;
+                    link.download = 'survey_report.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error generating report:', error); // Add this to debug
+                    alert('Error generating report: ' + error);
                 }
             });
+        });
     </script>
 </body>
 </html>
