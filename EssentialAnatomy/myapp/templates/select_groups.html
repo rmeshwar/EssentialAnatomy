@@ -4,7 +4,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Columns for Report</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -59,112 +58,174 @@
     <button id="generate-report">Generate PDF</button>
 
     <script>
-        // Array to hold selected columns
+        // Array to hold selected parent columns and their deselected children
         let selectedColumns = [];
 
         // Function to create the popup for selecting columns
         function createPopup(data) {
             let html = '<div id="popup-container">';
-            html += '<h3>Select Column</h3>';
+            html += '<h3>Select Columns</h3>';
+            html += '<div id="checkbox-container">';
             html += renderGroups(data); // Render the hierarchical data structure
+            html += '</div>';
+            html += '<button id="add-selected-column">Add Selected Column</button>';
             html += '<button id="close-popup">Close</button>';
             html += '</div>';
 
             $('body').append(html);
 
             // Toggle visibility of sub-groups
-            $('.toggle').click(function () {
-                const group = $(this).data('group');
-                const subGroupElement = $(`.sub-group[data-group="${group}"]`);
-                if (subGroupElement.is(':visible')) {
-                    $(this).text(`${group} [+]`);
-                    subGroupElement.hide();
-                } else {
-                    $(this).text(`${group} [-]`);
-                    subGroupElement.show();
+            $(document).on('click', '.toggle', function () {
+                $(this).siblings('.sub-group').toggle();
+                $(this).text(function(i, text){
+                    return text.includes('[-]') ? text.replace('[-]', '[+]') : text.replace('[+]', '[-]');
+                });
+            });
+
+            // Handle parent-child checkbox relationships
+            $(document).on('change', '#popup-container input[type="checkbox"]', function () {
+                const isChecked = $(this).is(':checked');
+                const $groupDiv = $(this).closest('.group');
+                const childCheckboxes = $groupDiv.find('> .sub-group input[type="checkbox"]');
+
+                // Toggle child checkboxes
+                if (childCheckboxes.length > 0) {
+                    childCheckboxes.prop('checked', isChecked);
                 }
+
+                // Update parent checkboxes
+                updateParentCheckboxes($(this));
+            });
+
+            // Add event listener to "Add Selected Column" button
+            $('#add-selected-column').click(function () {
+                // Read selected parent category
+                let selectedCheckbox = $('#checkbox-container input[type="checkbox"]:checked').first();
+
+                if (selectedCheckbox.length === 0) {
+                    alert('Please select a category to add.');
+                    return;
+                }
+
+                const categoryPath = selectedCheckbox.data('path');
+                const deselectedChildren = [];
+
+                // Collect deselected child paths
+                selectedCheckbox.closest('.group').find('input[type="checkbox"]').each(function () {
+                    if (!$(this).is(':checked')) {
+                        deselectedChildren.push($(this).data('path'));
+                    }
+                });
+
+                // Check if this category is already in selectedColumns
+                const exists = selectedColumns.some(function (col) {
+                    return col.category === categoryPath;
+                });
+
+                if (!exists) {
+                    selectedColumns.push({
+                        category: categoryPath,
+                        deselected_children: deselectedChildren
+                    });
+                    updateSelectedColumnsPreview();
+                } else {
+                    alert('Category "' + categoryPath + '" is already added.');
+                }
+
+                // Clear selections in the popup
+                $('#checkbox-container input[type="checkbox"]').prop('checked', false);
+
+                // Optionally, close the popup after adding
+                $('#popup-container').remove();
             });
 
             // Add event listener to close the popup
             $('#close-popup').click(function () {
                 $('#popup-container').remove();
             });
-
-            // Add event listener to select column
-            $('.select-column').click(function () {
-                const columnName = $(this).data('column');
-                if (selectedColumns.length < 9) {
-                    selectedColumns.push(columnName);
-                    updateSelectedColumnsPreview();
-                } else {
-                    alert('You can only select up to 9 columns.');
-                }
-                $('#popup-container').remove();
-            });
         }
 
-        // Render groups and subgroups dynamically
+        // Function to update parent checkboxes based on child checkbox states
+        function updateParentCheckboxes($checkbox) {
+            const $parentGroup = $checkbox.closest('.group').parent().closest('.group');
+            if ($parentGroup.length > 0) {
+                const parentCheckbox = $parentGroup.find('> input[type="checkbox"]');
+                const siblingCheckboxes = $parentGroup.find('> .sub-group > .group > input[type="checkbox"]');
+                const allChecked = siblingCheckboxes.length === siblingCheckboxes.filter(':checked').length;
+                parentCheckbox.prop('checked', allChecked);
+                updateParentCheckboxes(parentCheckbox);
+            }
+        }
+
+        // Render groups and subgroups dynamically with checkboxes
         function renderGroups(groups, level = 0, parentPath = '') {
             let html = '';
             for (let group in groups) {
                 let fullPath = parentPath ? `${parentPath} / ${group}` : group;
 
-                // For Anatomist: display professional_health_programs (subgroups) and specialties
-                if (group === 'Anatomist') {
-                    html += `<div style="margin-left: ${level * 20}px;">
-                                <span class="toggle" data-group="${fullPath}" style="cursor: pointer;">${group} [+]</span>
-                                <div class="sub-group" data-group="${fullPath}" style="display: none;">`;
+                // Detailed debugging logs
+                console.log('-------------------------');
+                console.log('Rendering group:', fullPath, 'Level:', level);
+                console.log('Processing group:', group);
+                console.log('groups[group]:', groups[group]);
 
-                    // Check and display Professional Health Programs for Anatomists
-                    if (groups[group].subgroups) {
-                        for (let program in groups[group].subgroups) {
-                            let programFullPath = `${fullPath} / ${program}`;
-                            html += `<div class="column-option" style="margin-bottom: 10px;">
-                                        <button class="select-column" data-column="${programFullPath}">${program}</button>
-                                     </div>`;
-                        }
-                    }
+                const hasSubgroups = groups[group].subgroups && Object.keys(groups[group].subgroups).length > 0;
+                const hasSpecialties = groups[group].specialties && groups[group].specialties.length > 0;
 
-                    html += `</div></div>`;
+                console.log('hasSubgroups:', hasSubgroups, 'hasSpecialties:', hasSpecialties);
+
+                html += `<div class="group" style="margin-left: ${level * 20}px;">`;
+                html += `<input type="checkbox" data-path="${fullPath}" data-level="${level}">`;
+
+                if (hasSubgroups || hasSpecialties) {
+                    html += `<span class="toggle" style="cursor: pointer;">${group} [+]</span>`;
                 } else {
-                    // Clinician or other groups with subgroups and specialties should be expandable
-                    html += `<div style="margin-left: ${level * 20}px;">
-                                <span class="toggle" data-group="${fullPath}" style="cursor: pointer;">${group} [+]</span>
-                                <button class="select-column" data-column="${fullPath}" style="margin-left: 10px;">Select ${group}</button>
-                                <div class="sub-group" data-group="${fullPath}" style="display: none; margin-left: 20px;">`;
+                    html += `<span>${group}</span>`;
+                }
 
-                    if (groups[group].subgroups) {
+                if (hasSubgroups || hasSpecialties) {
+                    html += `<div class="sub-group" style="display: none;">`;
+
+                    if (hasSubgroups) {
                         html += renderGroups(groups[group].subgroups, level + 1, fullPath);
                     }
 
-                    if (groups[group].specialties && groups[group].specialties.length) {
+                    if (hasSpecialties) {
                         groups[group].specialties.forEach(specialty => {
                             let specialtyFullPath = `${fullPath} / ${specialty.name}`;
-                            html += `<div class="column-option" style="margin-bottom: 10px;">
-                                        <button class="select-column" data-column="${specialtyFullPath}">${specialty.name}</button>
-                                     </div>`;
+                            console.log('Rendering specialty:', specialtyFullPath, 'Level:', level + 1);
+                            html += `<div class="group" style="margin-left: ${(level + 1) * 20}px;">
+                                        <input type="checkbox" data-path="${specialtyFullPath}" data-level="${level + 1}">
+                                        <span>${specialty.name}</span>
+                                    </div>`;
                         });
                     }
 
-                    html += `</div></div>`;
+                    html += `</div>`;
                 }
+
+                html += `</div>`;
             }
             return html;
         }
 
         // Update the preview table with selected columns
         function updateSelectedColumnsPreview() {
+            console.log("Selected Columns:", selectedColumns); // Debugging statement
+
             const headersRow = $('#column-headers');
             headersRow.empty();
+            headersRow.append('<th>Category</th>'); // Optional: add a header for the first column
             selectedColumns.forEach(column => {
-                headersRow.append(`<th>${column}</th>`);
+                headersRow.append(`<th>${column.category}</th>`);
             });
         }
 
         // Handle "Add Column" button click
         $('#add-column').click(function () {
             // Load the JSON structure and open the popup dynamically
-            $.getJSON("{% static 'data/parsed_structure.json' %}", function (data) {
+            $.getJSON("{% static 'data/parsed_structure.json' %}?v=2", function (data) {
+                console.log("Loaded data:", data);
                 createPopup(data);
             });
         });
@@ -173,6 +234,10 @@
         $('#generate-report').click(function () {
             if (selectedColumns.length === 0) {
                 alert('Please select at least one column to generate a report.');
+                return;
+            }
+            if (selectedColumns.length > 9) {
+                alert('You can only select up to 9 columns.');
                 return;
             }
 

@@ -21,11 +21,14 @@ def generate_report(request):
 
         # Run the command to generate the report based on selected columns
         try:
+            # Serialize selected_columns to a JSON string
+            columns_json_str = json.dumps(selected_columns)
+
             # Define a path to save the report in the static files directory
             static_report_path = os.path.join(settings.BASE_DIR, 'EssentialAnatomy', 'static', 'survey_report_combined.pdf')
 
-            # Call the management command with the selected categories and specify the output path
-            call_command('generate_report', *['--columns'] + selected_columns)
+            # Call the management command with the serialized JSON string
+            call_command('generate_report', '--columns', columns_json_str)
 
             # Move the generated report to the static folder for easy download
             if os.path.exists("survey_report_combined.pdf"):
