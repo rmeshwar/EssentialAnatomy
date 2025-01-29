@@ -9,8 +9,6 @@ from django.conf import settings
 import os
 from django.contrib.staticfiles.storage import staticfiles_storage
 import json
-import shutil
-from functools import partial
 from myapp.models import (
     Section, Subsection, Element, Topic, ResponseTopic,
     ProcessedResponseAnatomy, ProcessedResponseClinician, ResponderAnatomy, ResponderClinician
@@ -22,14 +20,18 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--columns',
-            nargs='+',
             type=str,
-            help='Program categories to include in the report (e.g., "Anatomist", "Clinician / Medicine - Allopathic", etc.)',
+            help='JSON string of selected columns with deselected children',
             required=True
         )
 
     def handle(self, *args, **kwargs):
-        columns = [column.strip() for column in kwargs['columns']]
+        columns_json = kwargs['columns']
+        try:
+            selected_columns = json.loads(columns_json)
+        except json.JSONDecodeError as e:
+            self.stdout.write(self.style.ERROR(f"Invalid JSON for columns: {e}"))
+            return
 
         # Load parsed_structure.json to handle main groups and subgroups
         try:
@@ -41,98 +43,63 @@ class Command(BaseCommand):
                 f'File not found: {json_file_path}. Please ensure the file exists and is in the correct location.'))
             return
 
-        # Flatten structure to match input categories
-        def expand_structure(structure, parent_key='', parent_abbr=''):
-            expanded = {}
-            abbreviations_map = {}  # Dictionary to map abbreviations to full labels
-
-            for key, value in structure.items():
-                current_key = f"{parent_key} / {key}".strip() if parent_key else key
-                if parent_abbr:
-                    current_abbr = f"{parent_abbr}/{value.get('abbr', key)}"
-                else:
-                    current_abbr = value.get('abbr', key)
-
-                expanded[current_key] = {"label": key, "abbr": current_abbr}
-                abbreviations_map[current_abbr] = current_key  # Map abbreviation to the full label
-
-                if 'subgroups' in value:
-                    sub_expanded, sub_abbreviations = expand_structure(value['subgroups'], current_key, current_abbr)
-                    expanded.update(sub_expanded)
-                    abbreviations_map.update(sub_abbreviations)
-
-                if 'specialties' in value:
-                    for specialty in value['specialties']:
-                        specialty_key = f"{current_key} / {specialty['name']}".strip()
-                        specialty_abbr = f"{current_abbr}/{specialty.get('abbr', specialty['name'])}"
-                        expanded[specialty_key] = {"label": specialty['name'], "abbr": specialty_abbr}
-                        abbreviations_map[specialty_abbr] = specialty_key
-
-            return expanded, abbreviations_map
-
         # Expand the parsed structure into a flattened dictionary
-        expanded_categories, abbreviations_map = expand_structure(parsed_structure)
-        # print(abbreviations_map)
+        expanded_categories, abbreviations_map = self.expand_structure(parsed_structure)
 
-        # Match input categories with the expanded structure
         processed_responses = []
-        for column in columns:
-            if column in expanded_categories:
-                matched_category = expanded_categories[column]
-                if "Anatomist" in column:
-                    processed_responses.append(
-                        {
-                            "model": ProcessedResponseAnatomy,
-                            "label": matched_category['label'],
-                            "full_key": column,  # Store the full hierarchical key
-                            "is_anatomist": True,
-                            "query": {}
-                        }
-                    )
-                elif column == "Clinician":
-                    # For the general Clinician category, include all responses without specific filtering
+        for item in selected_columns:
+            parent_category = item['category']
+            deselected_children = set(item.get('deselected_children', []))
+
+            matched_category = expanded_categories.get(parent_category)
+            if not matched_category:
+                continue  # Skip if category not found
+
+            # Adjusted the logic here
+            category_parts = parent_category.split(" / ")
+
+            if category_parts[0] == "Anatomist":
+                # Handle Anatomist categories
+                processed_responses.append(
+                    {
+                        "model": ProcessedResponseAnatomy,
+                        "label": matched_category['label'],
+                        "full_key": parent_category,
+                        "is_anatomist": True,
+                        "query": {},
+                        "exclusions": deselected_children
+                    }
+                )
+            elif category_parts[0] == "Clinician":
+                # Handle Clinician categories
+                if len(category_parts) == 1:
+                    # Parent category is "Clinician"
                     processed_responses.append(
                         {
                             "model": ProcessedResponseClinician,
-                            "label": "Clinician",
-                            "full_key": column,
+                            "label": matched_category['label'],
+                            "full_key": parent_category,
                             "is_anatomist": False,
-                            "query": {}  # No filter for general clinician category
+                            "query": {},
+                            "exclusions": deselected_children
                         }
                     )
-                elif "Clinician" in column:
-                    # Split the category to identify whether it's a specific primary field or just the professional health program
-                    category_parts = column.split(" / ")
-                    if len(category_parts) == 3:
-                        # This is for a more specific category that includes a primary field, like "Anesthesiology"
-                        professional_health_program = category_parts[1]
-                        primary_field = category_parts[2]
-
-                        processed_responses.append(
-                            {
-                                "model": ProcessedResponseClinician,
-                                "label": matched_category['label'],
-                                "full_key": column,
-                                "is_anatomist": False,
-                                "query": {
-                                    "professional_health_program": professional_health_program,
-                                    "primary_field": primary_field  # Add the primary field filter here
-                                }
-                            }
-                        )
-                    else:
-                        # For more general clinician categories, without a specific primary field
-                        processed_responses.append(
-                            {
-                                "model": ProcessedResponseClinician,
-                                "label": matched_category['label'],
-                                "full_key": column,
-                                "is_anatomist": False,
-                                "query": {
-                                    "professional_health_program": matched_category['label']
-                                }
-                            }
-                        )
+                elif len(category_parts) == 2:
+                    # Parent category is "Clinician / [Subcategory]"
+                    professional_health_program = category_parts[1]
+                    processed_responses.append(
+                        {
+                            "model": ProcessedResponseClinician,
+                            "label": matched_category['label'],
+                            "full_key": parent_category,
+                            "is_anatomist": False,
+                            "query": {"professional_health_program": professional_health_program},
+                            "exclusions": deselected_children
+                        }
+                    )
+                else:
+                    # If more than 2 parts, it's a child category (should not happen here)
+                    pass
 
         if not processed_responses:
             self.stdout.write(self.style.ERROR("No valid categories provided for generating the report."))
@@ -141,17 +108,35 @@ class Command(BaseCommand):
         # Generate a single PDF report for the combined responses
         self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map)
 
-    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map):
-        # Load parsed_structure.json to handle main groups and subgroups
-        try:
-            json_file_path = staticfiles_storage.path('data/parsed_structure.json')
-            with open(json_file_path, 'r') as f:
-                parsed_structure = json.load(f)
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR(
-                f'File not found: {json_file_path}. Please ensure the file exists and is in the correct location.'))
-            return
+    def expand_structure(self, structure, parent_key='', parent_abbr=''):
+        expanded = {}
+        abbreviations_map = {}  # Dictionary to map abbreviations to full labels
 
+        for key, value in structure.items():
+            current_key = f"{parent_key} / {key}".strip() if parent_key else key
+            if parent_abbr:
+                current_abbr = f"{parent_abbr}/{value.get('abbr', key)}"
+            else:
+                current_abbr = value.get('abbr', key)
+
+            expanded[current_key] = {"label": key, "abbr": current_abbr, "parent": parent_key}
+            abbreviations_map[current_abbr] = current_key  # Map abbreviation to the full label
+
+            if 'subgroups' in value:
+                sub_expanded, sub_abbreviations = self.expand_structure(value['subgroups'], current_key, current_abbr)
+                expanded.update(sub_expanded)
+                abbreviations_map.update(sub_abbreviations)
+
+            if 'specialties' in value:
+                for specialty in value['specialties']:
+                    specialty_key = f"{current_key} / {specialty['name']}".strip()
+                    specialty_abbr = f"{current_abbr}/{specialty.get('abbr', specialty['name'])}"
+                    expanded[specialty_key] = {"label": specialty['name'], "abbr": specialty_abbr, "parent": current_key}
+                    abbreviations_map[specialty_abbr] = specialty_key
+
+        return expanded, abbreviations_map
+
+    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map):
         def get_color_for_rating(rating):
             """Return a color from red to green based on the rating (1 to 7)."""
             # Normalize the rating to a value between 0 and 1
@@ -179,23 +164,6 @@ class Command(BaseCommand):
         remaining_width = available_width - first_col_width
         other_col_width = remaining_width / (len(processed_responses) + 1)  # Divide the rest evenly among categories + total column
         col_widths = [first_col_width] + [other_col_width] * (len(processed_responses) + 1)
-
-        # Extracting abbreviations for categories from parsed_structure.json
-        category_abbreviations = {}
-        for group in parsed_structure:
-            group_data = parsed_structure[group]
-            group_abbr = group_data.get('abbr', group)
-            category_abbreviations[group] = group_abbr
-            if 'subgroups' in group_data:
-                for subgroup in group_data['subgroups']:
-                    subgroup_data = group_data['subgroups'][subgroup]
-                    subgroup_abbr = subgroup_data.get('abbr', subgroup)
-                    category_abbreviations[subgroup] = subgroup_abbr
-                    if 'specialties' in subgroup_data:
-                        for specialty in subgroup_data['specialties']:
-                            specialty_name = specialty['name']
-                            specialty_abbr = specialty.get('abbr', specialty_name)
-                            category_abbreviations[specialty_name] = specialty_abbr
 
         # Build the report table data
         sections = Section.objects.all()
@@ -227,20 +195,36 @@ class Command(BaseCommand):
                         total_ratings = []
                         for response in processed_responses:
                             processed_model, query = response['model'], response['query']
-                            processed_response_qs = processed_model.objects.filter(subsubgroup_id=response_topic.id,
-                                                                                   **query)
+                            exclusions = response.get('exclusions', set())
+
+                            # Get responders excluding deselected subcategories
+                            responders = self.get_responders(response, exclusions, expanded_categories)
+
+                            # For ResponderAnatomy and ProcessedResponseAnatomy
+                            if response['is_anatomist']:
+                                responder_programs = responders.values_list('professional_health_program', flat=True)
+                                processed_response_qs = processed_model.objects.filter(
+                                    subsubgroup_id=response_topic.id,
+                                    professional_health_program__in=responder_programs
+                                )
+                            else:
+                                # For ResponderClinician and ProcessedResponseClinician
+                                responder_programs = responders.values_list('professional_health_program', flat=True)
+                                processed_response_qs = processed_model.objects.filter(
+                                    subsubgroup_id=response_topic.id,
+                                    professional_health_program__in=responder_programs
+                                )
+
                             if processed_response_qs.exists():
                                 abbr = expanded_categories[response['full_key']]['abbr']
                                 abbreviations_used.add(abbr)
 
-                                # Multiple responses might be found, aggregate their values
                                 avg_ratings = []
                                 rating_counts = []
                                 for processed_response in processed_response_qs:
                                     avg_ratings.append(processed_response.average_rating)
                                     rating_counts.append(processed_response.rating_count)
 
-                                # Calculate the weighted average if multiple records exist
                                 total_rating_sum = sum(r * count for r, count in zip(avg_ratings, rating_counts))
                                 total_rating_count = sum(rating_counts)
                                 if total_rating_count > 0:
@@ -265,41 +249,16 @@ class Command(BaseCommand):
                     else:
                         row = [Paragraph(f"{topic.name}", blue_text_style)]
                         # Add abbreviation and count of responses (n={x})
-                        # Define a style for the small, red text
                         small_red_text_style = ParagraphStyle(name='SmallRedText', parent=styles['Normal'],
                                                               textColor=colors.red, fontSize=8)
 
-                        # Modify the logic to include "n={x}" along with the abbreviation
                         for response in processed_responses:
                             abbr = expanded_categories[response['full_key']]['abbr']
                             abbreviations_used.add(abbr)
 
                             # Calculate the count (number of responses for this category)
-                            if response['is_anatomist']:
-                                if response['full_key'] == "Anatomist":
-                                    # Count all responder entries for Anatomist (broad category)
-                                    count = ResponderAnatomy.objects.count()
-                                else:
-                                    # Count specific to a health program within Anatomist
-                                    count = ResponderAnatomy.objects.filter(
-                                        professional_health_program=response['label']
-                                    ).count()
-                            else:
-                                if response['full_key'] == "Clinician":
-                                    # Count all responder entries for Clinician (broad category)
-                                    count = ResponderClinician.objects.count()
-                                elif 'primary_field' in response['query']:
-                                    # Count for a specific field under Clinician
-                                    count = ResponderClinician.objects.filter(
-                                        professional_health_program=response['query']['professional_health_program'],
-                                        primary_field=response['query']['primary_field']
-                                    ).count()
-                                else:
-                                    # Count for a more specific clinician program without a primary field
-                                    count = ResponderClinician.objects.filter(
-                                        professional_health_program=response['query'].get('professional_health_program',
-                                                                                          response['label'])
-                                    ).count()
+                            responders = self.get_responders(response, response.get('exclusions', set()), expanded_categories)
+                            count = responders.count()
 
                             # Format abbreviation with count "n={x}"
                             abbr_with_count = f"{abbr} <font color='red' size='8'>n={count}</font>"
@@ -316,8 +275,26 @@ class Command(BaseCommand):
                             total_ratings = []
                             for response in processed_responses:
                                 processed_model, query = response['model'], response['query']
-                                processed_response_qs = processed_model.objects.filter(subsubgroup_id=responsetopic.id,
-                                                                                       **query)
+                                exclusions = response.get('exclusions', set())
+
+                                # Get responders excluding deselected subcategories
+                                responders = self.get_responders(response, exclusions, expanded_categories)
+
+                                if response['is_anatomist']:
+                                    responder_programs = responders.values_list('professional_health_program',
+                                                                                flat=True)
+                                    processed_response_qs = processed_model.objects.filter(
+                                        subsubgroup_id=responsetopic.id,
+                                        professional_health_program__in=responder_programs
+                                    )
+                                else:
+                                    responder_programs = responders.values_list('professional_health_program',
+                                                                                flat=True)
+                                    processed_response_qs = processed_model.objects.filter(
+                                        subsubgroup_id=responsetopic.id,
+                                        professional_health_program__in=responder_programs
+                                    )
+
                                 if processed_response_qs.exists():
                                     avg_ratings = []
                                     rating_counts = []
@@ -408,8 +385,7 @@ class Command(BaseCommand):
 
                 # Define the maximum width for the key text, leaving room for the page number on the right (e.g., reserve 40 mm)
                 reserved_space_on_right = 80 * mm
-                max_width = (letter[
-                                 0] - reserved_space_on_right - 20 * mm)  # Total page width minus reserved space and left margin
+                max_width = (letter[0] - reserved_space_on_right - 20 * mm)  # Total page width minus reserved space and left margin
                 current_line = ""
                 lines = []
                 space_width = stringWidth(" ", 'Helvetica', 8)
@@ -436,12 +412,51 @@ class Command(BaseCommand):
                     canvas.drawString(20 * mm, y_position, line)
                     y_position -= 10  # Move up for the next line
 
-                # print(f"Page {page_num} - Abbreviations Used: {abbreviations_used}")
-                # print(f"Page {page_num} - Abbreviation Key: {key_text}")
-
         # Generate PDF with updated function call
         doc.build(elements,
                   onFirstPage=lambda canvas, doc: add_page_number(canvas, doc, abbreviations_used, abbreviations_map),
                   onLaterPages=lambda canvas, doc: add_page_number(canvas, doc, abbreviations_used, abbreviations_map))
 
         self.stdout.write(self.style.SUCCESS('Successfully generated combined PDF report'))
+
+    def get_responders(self, response, exclusions, expanded_categories):
+        # Fetch responders for the given response, excluding those from deselected subcategories
+        if response['is_anatomist']:
+            responders = ResponderAnatomy.objects.all()
+            if response['full_key'] != "Anatomist":
+                responders = responders.filter(
+                    professional_health_program=response['label']
+                )
+            # Exclude responders from deselected subcategories
+            if exclusions:
+                excluded_programs = [expanded_categories[ex]['label'] for ex in exclusions if ex in expanded_categories]
+                responders = responders.exclude(professional_health_program__in=excluded_programs)
+        else:
+            responders = ResponderClinician.objects.all()
+            if 'professional_health_program' in response['query']:
+                responders = responders.filter(
+                    professional_health_program=response['query']['professional_health_program']
+                )
+            # Exclude responders from deselected subcategories
+            if exclusions:
+                # Exclude based on primary_field or professional_health_program
+                exclusion_queries = []
+                for ex in exclusions:
+                    ex_parts = ex.split(" / ")
+                    ex_professional_health_program = ex_parts[1] if len(ex_parts) >= 2 else None
+                    ex_primary_field = ex_parts[2] if len(ex_parts) >= 3 else None
+                    if ex_primary_field:
+                        exclusion_queries.append({
+                            'professional_health_program': ex_professional_health_program,
+                            'primary_field': ex_primary_field
+                        })
+                    elif ex_professional_health_program:
+                        exclusion_queries.append({
+                            'professional_health_program': ex_professional_health_program
+                        })
+                from django.db.models import Q
+                exclusion_filter = Q()
+                for eq in exclusion_queries:
+                    exclusion_filter |= Q(**eq)
+                responders = responders.exclude(exclusion_filter)
+        return responders

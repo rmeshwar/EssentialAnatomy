@@ -1,62 +1,62 @@
 {
     "Anatomist": {
-        "abbr": "ANAT",
-        "subgroups": {
-            "Anatomy Graduate": {
-                "abbr": "GRD",
-                "specialties": []
+        "abbr": "A",
+        "specialties": [
+            {
+                "name": "Anatomy Graduate",
+                "abbr": "AG"
             },
-            "Chiropractic": {
-                "abbr": "CH",
-                "specialties": []
+            {
+                "name": "Chiropractic",
+                "abbr": "C"
             },
-            "Dentistry": {
-                "abbr": "DDS",
-                "specialties": []
+            {
+                "name": "Dentistry",
+                "abbr": "D"
             },
-            "Medicine - Allopathic": {
-                "abbr": "MD",
-                "specialties": []
+            {
+                "name": "Medicine - Allopathic",
+                "abbr": "M-A"
             },
-            "Medicine - Osteopathic": {
-                "abbr": "DO",
-                "specialties": []
+            {
+                "name": "Medicine - Osteopathic",
+                "abbr": "M-O"
             },
-            "Nursing": {
-                "abbr": "N",
-                "specialties": []
+            {
+                "name": "Nursing",
+                "abbr": "N"
             },
-            "Occupational Therapy": {
-                "abbr": "OT",
-                "specialties": []
+            {
+                "name": "Occupational Therapy",
+                "abbr": "OT"
             },
-            "Pharmacy": {
-                "abbr": "PH",
-                "specialties": []
+            {
+                "name": "Pharmacy",
+                "abbr": "P"
             },
-            "Physical Therapy": {
-                "abbr": "PT",
-                "specialties": []
+            {
+                "name": "Physical Therapy",
+                "abbr": "PT"
             },
-            "Physician Assistant": {
-                "abbr": "PA",
-                "specialties": []
+            {
+                "name": "Physician Assistant",
+                "abbr": "PA"
             },
-            "Undergraduate": {
-                "abbr": "UG",
-                "specialties": []
+            {
+                "name": "Undergraduate",
+                "abbr": "U"
             },
-            "MISC": {
-                "abbr": "M",
-                "specialties": []
+            {
+                "name": "MISC",
+                "abbr": "M"
             }
-        }
+        ]
     },
     "Clinician": {
-        "abbr": "CLIN",
+        "abbr": "C",
         "subgroups": {
             "Dentistry": {
-                "abbr": "DDS",
+                "abbr": "D",
                 "specialties": [
                     {
                         "name": "Dental Anesthesiology",
@@ -109,166 +109,1292 @@
                 ]
             },
             "Medicine - Allopathic": {
-                "abbr": "MD",
-                "specialties": [
-                    {
-                        "name": "Anesthesiology",
-                        "abbr": "A"
+                "abbr": "M-A",
+                "subgroups": {
+                    "Anesthesiology": {
+                        "abbr": "A",
+                        "specialties": [
+                            {
+                                "name": "Anesthesiology Critical Care Medicine",
+                                "abbr": "ACCM"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Obstetric Anesthesiology",
+                                "abbr": "OA"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Anesthesiology",
+                                "abbr": "PA"
+                            },
+                            {
+                                "name": "Pediatric Cardiac Anesthesiology",
+                                "abbr": "PCA"
+                            },
+                            {
+                                "name": "Regional Anesthesiology and Acute Pain Medicine",
+                                "abbr": "RAAAPM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Dermatology",
-                        "abbr": "D"
+                    "Dermatology": {
+                        "abbr": "D",
+                        "specialties": [
+                            {
+                                "name": "Dermatopathology",
+                                "abbr": "D"
+                            },
+                            {
+                                "name": "Micrographic Dermatologic Surgery",
+                                "abbr": "MDS"
+                            },
+                            {
+                                "name": "Pediatric Dermatology",
+                                "abbr": "PD"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Diagnostic Radiology",
-                        "abbr": "DR"
+                    "Diagnostic Radiology": {
+                        "abbr": "DR",
+                        "specialties": [
+                            {
+                                "name": "Abdominal Imaging Radiology",
+                                "abbr": "AIR"
+                            },
+                            {
+                                "name": "Cardiothoracic Radiology",
+                                "abbr": "CR"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Endovascular Surgical Neuroradiology",
+                                "abbr": "ESN"
+                            },
+                            {
+                                "name": "Interventional Radiology",
+                                "abbr": "IR"
+                            },
+                            {
+                                "name": "Medical Physics",
+                                "abbr": "MP"
+                            },
+                            {
+                                "name": "Musculoskeletal Imaging Radiology",
+                                "abbr": "MIR"
+                            },
+                            {
+                                "name": "Neuroradiology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Nuclear Radiology",
+                                "abbr": "NR"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Radiology",
+                                "abbr": "PR"
+                            },
+                            {
+                                "name": "Radiation Oncology",
+                                "abbr": "RO"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Emergency Medicine",
-                        "abbr": "EM"
+                    "Emergency Medicine": {
+                        "abbr": "EM",
+                        "specialties": [
+                            {
+                                "name": "Anesthesiology Critical Care Medicine",
+                                "abbr": "ACCM"
+                            },
+                            {
+                                "name": "Emergency Medical Services",
+                                "abbr": "EMS"
+                            },
+                            {
+                                "name": "Internal Medicine-Critical Care Medicine",
+                                "abbr": "IMCM"
+                            },
+                            {
+                                "name": "Medical Toxicology",
+                                "abbr": "MT"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Emergency Medicine",
+                                "abbr": "PEM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            },
+                            {
+                                "name": "Undersea and Hyperbaric Medicine",
+                                "abbr": "UAHM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Family Medicine",
-                        "abbr": "FM"
+                    "Family Medicine": {
+                        "abbr": "FM",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Geriatric Medicine",
+                                "abbr": "GM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "General Surgery",
-                        "abbr": "GS"
+                    "General Surgery": {
+                        "abbr": "GS",
+                        "specialties": [
+                            {
+                                "name": "Complex General Surgical Oncology",
+                                "abbr": "CGSO"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Pediatric Surgery",
+                                "abbr": "PS"
+                            },
+                            {
+                                "name": "Surgical Critical Care",
+                                "abbr": "SCC"
+                            },
+                            {
+                                "name": "Vascular Surgery",
+                                "abbr": "VS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Internal Medicine",
-                        "abbr": "IM"
+                    "Internal Medicine": {
+                        "abbr": "IM",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Adult Congenital Heart Disease",
+                                "abbr": "ACHD"
+                            },
+                            {
+                                "name": "Advanced Heart Failure and Transplant Cardiology",
+                                "abbr": "AHFATC"
+                            },
+                            {
+                                "name": "Cardiovascular Disease",
+                                "abbr": "CD"
+                            },
+                            {
+                                "name": "Clinical Cardiac Electrophysiology",
+                                "abbr": "CCE"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Endocrinology, Diabetes, and Metabolism",
+                                "abbr": "EDAM"
+                            },
+                            {
+                                "name": "Gastroenterology",
+                                "abbr": "G"
+                            },
+                            {
+                                "name": "Geriatric Medicine",
+                                "abbr": "GM"
+                            },
+                            {
+                                "name": "Hematology",
+                                "abbr": "H"
+                            },
+                            {
+                                "name": "Hematology and Medical Oncology",
+                                "abbr": "HAMO"
+                            },
+                            {
+                                "name": "Nephrology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Pulmonary Disease",
+                                "abbr": "PD"
+                            },
+                            {
+                                "name": "Pulmonary Disease and Critical Care Medicine",
+                                "abbr": "PDACCM"
+                            },
+                            {
+                                "name": "Rheumatology",
+                                "abbr": "R"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            },
+                            {
+                                "name": "Transplant Hepatology",
+                                "abbr": "TH"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Neurological Surgery",
-                        "abbr": "NS"
+                    "Neurological Surgery": {
+                        "abbr": "NS",
+                        "specialties": [
+                            {
+                                "name": "Endovascular Surgical Neuroradiology",
+                                "abbr": "ESN"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Neurology",
-                        "abbr": "N"
+                    "Neurology": {
+                        "abbr": "N",
+                        "specialties": [
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Child Neurology/Pediatric Neurology",
+                                "abbr": "CNN"
+                            },
+                            {
+                                "name": "Clinical Neurophysiology",
+                                "abbr": "CN"
+                            },
+                            {
+                                "name": "Epilepsy",
+                                "abbr": "E"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Neurodevelopmental Disabilities",
+                                "abbr": "ND"
+                            },
+                            {
+                                "name": "Neuromuscular Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Vascular Neurology",
+                                "abbr": "VN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Obstetrics and Gynecology",
-                        "abbr": "OAG"
+                    "Obstetrics and Gynecology": {
+                        "abbr": "OAG",
+                        "specialties": [
+                            {
+                                "name": "Complex Family Planning",
+                                "abbr": "CFP"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Female Pelvic Medicine and Reconstructive Surgery",
+                                "abbr": "FPMARS"
+                            },
+                            {
+                                "name": "Gynecologic Oncology",
+                                "abbr": "GO"
+                            },
+                            {
+                                "name": "Maternal-Fetal Medicine",
+                                "abbr": "MM"
+                            },
+                            {
+                                "name": "Reproductive Endocrinology and Infertility",
+                                "abbr": "REAI"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Orthopaedic Surgery",
-                        "abbr": "OS"
+                    "Orthopaedic Surgery": {
+                        "abbr": "OS",
+                        "specialties": [
+                            {
+                                "name": "Adult Reconstructive Orthopaedic Surgery",
+                                "abbr": "AROS"
+                            },
+                            {
+                                "name": "Foot and Ankle Orthopaedic Surgery",
+                                "abbr": "FAAOS"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Musculoskeletal Oncology",
+                                "abbr": "MO"
+                            },
+                            {
+                                "name": "Orthopaedic Sports Medicine",
+                                "abbr": "OSM"
+                            },
+                            {
+                                "name": "Orthopaedic Surgery of the Spine",
+                                "abbr": "OSOTS"
+                            },
+                            {
+                                "name": "Orthopaedic Trauma",
+                                "abbr": "OT"
+                            },
+                            {
+                                "name": "Pediatric Orthopaedic Surgery",
+                                "abbr": "POS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Otolaryngology-Head and Neck Surgery",
-                        "abbr": "OANS"
+                    "Otolaryngology-Head and Neck Surgery": {
+                        "abbr": "OANS",
+                        "specialties": [
+                            {
+                                "name": "Complex Pediatric Otolaryngology",
+                                "abbr": "CPO"
+                            },
+                            {
+                                "name": "Neurotology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Plastic Surgery within the Head and Neck",
+                                "abbr": "PSWTHAN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Pathology",
-                        "abbr": "P"
+                    "Pathology": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Blood Banking-Transfusion Medicine",
+                                "abbr": "BBM"
+                            },
+                            {
+                                "name": "Chemical Pathology",
+                                "abbr": "CP"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Cytopathology",
+                                "abbr": "C"
+                            },
+                            {
+                                "name": "Dermatopathology",
+                                "abbr": "D"
+                            },
+                            {
+                                "name": "Forensic Pathology",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Forensic Pathology",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Hematopathology/Hematology",
+                                "abbr": "H"
+                            },
+                            {
+                                "name": "Medical Microbiology Pathology",
+                                "abbr": "MMP"
+                            },
+                            {
+                                "name": "Molecular Genetic Pathology",
+                                "abbr": "MGP"
+                            },
+                            {
+                                "name": "Neuropathology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Pediatric Pathology",
+                                "abbr": "PP"
+                            },
+                            {
+                                "name": "Selective Pathology",
+                                "abbr": "SP"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Pediatrics",
-                        "abbr": "P"
+                    "Pediatrics": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Child Abuse Pediatrics",
+                                "abbr": "CAP"
+                            },
+                            {
+                                "name": "Developmental and Behavioral Pediatrics",
+                                "abbr": "DABP"
+                            },
+                            {
+                                "name": "Medical Toxicology",
+                                "abbr": "MT"
+                            },
+                            {
+                                "name": "Neonatal-Perinatal Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pediatric Cardiology",
+                                "abbr": "PC"
+                            },
+                            {
+                                "name": "Pediatric Critical Care Medicine",
+                                "abbr": "PCCM"
+                            },
+                            {
+                                "name": "Pediatric Emergency Medicine",
+                                "abbr": "PEM"
+                            },
+                            {
+                                "name": "Pediatric Endocrinology",
+                                "abbr": "PE"
+                            },
+                            {
+                                "name": "Pediatric Gastroenterology",
+                                "abbr": "PG"
+                            },
+                            {
+                                "name": "Pediatric Hematology-Oncology",
+                                "abbr": "PH"
+                            },
+                            {
+                                "name": "Pediatric Hospital Medicine",
+                                "abbr": "PHM"
+                            },
+                            {
+                                "name": "Pediatric Infectious Disease",
+                                "abbr": "PID"
+                            },
+                            {
+                                "name": "Pediatric Nephrology",
+                                "abbr": "PN"
+                            },
+                            {
+                                "name": "Pediatric Pulmonology",
+                                "abbr": "PP"
+                            },
+                            {
+                                "name": "Pediatric Rheumatology",
+                                "abbr": "PR"
+                            },
+                            {
+                                "name": "Pediatric Sports Medicine",
+                                "abbr": "PSM"
+                            },
+                            {
+                                "name": "Pediatric Transplant Hepatology",
+                                "abbr": "PTH"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Physical Medicine and Rehabilitation",
-                        "abbr": "PMAR"
+                    "Physical Medicine and Rehabilitation": {
+                        "abbr": "PMAR",
+                        "specialties": [
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Neuromuscular Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Rehabilitation Medicine",
+                                "abbr": "PRM"
+                            },
+                            {
+                                "name": "Spinal Cord Injury Medicine",
+                                "abbr": "SCIM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Plastic Surgery",
-                        "abbr": "PS"
+                    "Plastic Surgery": {
+                        "abbr": "PS",
+                        "specialties": [
+                            {
+                                "name": "Craniofacial Surgery",
+                                "abbr": "CS"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Plastic Surgery within the Head and Neck",
+                                "abbr": "PSWTHAN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Psychiatry",
-                        "abbr": "P"
+                    "Psychiatry": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Addiction Psychiatry",
+                                "abbr": "AP"
+                            },
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Child and Adolescent Psychiatry",
+                                "abbr": "CAAP"
+                            },
+                            {
+                                "name": "Consultation-Liasion Psychiatry/Psychosomatic Medicine",
+                                "abbr": "CPM"
+                            },
+                            {
+                                "name": "Forensic Psychiatry",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Geriatric Psychiatry",
+                                "abbr": "GP"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Thoracic Surgery/Thoracic and Cardiac Surgery",
-                        "abbr": "TSACS"
+                    "Thoracic Surgery/Thoracic and Cardiac Surgery": {
+                        "abbr": "TSACS",
+                        "specialties": [
+                            {
+                                "name": "Congenital Cardiac Surgery",
+                                "abbr": "CCS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Urology",
-                        "abbr": "U"
+                    "Urology": {
+                        "abbr": "U",
+                        "specialties": [
+                            {
+                                "name": "Female Pelvic Medicine and Reconstructive Surgery",
+                                "abbr": "FPMARS"
+                            },
+                            {
+                                "name": "Pediatric Urology",
+                                "abbr": "PU"
+                            }
+                        ]
                     }
-                ]
+                }
             },
             "Medicine - Osteopathic": {
-                "abbr": "DO",
-                "specialties": [
-                    {
-                        "name": "Anesthesiology",
-                        "abbr": "A"
+                "abbr": "M-O",
+                "subgroups": {
+                    "Anesthesiology": {
+                        "abbr": "A",
+                        "specialties": [
+                            {
+                                "name": "Anesthesiology Critical Care Medicine",
+                                "abbr": "ACCM"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Obstetric Anesthesiology",
+                                "abbr": "OA"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Anesthesiology",
+                                "abbr": "PA"
+                            },
+                            {
+                                "name": "Pediatric Cardiac Anesthesiology",
+                                "abbr": "PCA"
+                            },
+                            {
+                                "name": "Regional Anesthesiology and Acute Pain Medicine",
+                                "abbr": "RAAAPM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Dermatology",
-                        "abbr": "D"
+                    "Dermatology": {
+                        "abbr": "D",
+                        "specialties": [
+                            {
+                                "name": "Dermatopathology",
+                                "abbr": "D"
+                            },
+                            {
+                                "name": "Micrographic Dermatologic Surgery",
+                                "abbr": "MDS"
+                            },
+                            {
+                                "name": "Pediatric Dermatology",
+                                "abbr": "PD"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Diagnostic Radiology",
-                        "abbr": "DR"
+                    "Diagnostic Radiology": {
+                        "abbr": "DR",
+                        "specialties": [
+                            {
+                                "name": "Abdominal Imaging Radiology",
+                                "abbr": "AIR"
+                            },
+                            {
+                                "name": "Cardiothoracic Radiology",
+                                "abbr": "CR"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Endovascular Surgical Neuroradiology",
+                                "abbr": "ESN"
+                            },
+                            {
+                                "name": "Interventional Radiology",
+                                "abbr": "IR"
+                            },
+                            {
+                                "name": "Medical Physics",
+                                "abbr": "MP"
+                            },
+                            {
+                                "name": "Musculoskeletal Imaging Radiology",
+                                "abbr": "MIR"
+                            },
+                            {
+                                "name": "Neuroradiology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Nuclear Radiology",
+                                "abbr": "NR"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Radiology",
+                                "abbr": "PR"
+                            },
+                            {
+                                "name": "Radiation Oncology",
+                                "abbr": "RO"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Emergency Medicine",
-                        "abbr": "EM"
+                    "Emergency Medicine": {
+                        "abbr": "EM",
+                        "specialties": [
+                            {
+                                "name": "Anesthesiology Critical Care Medicine",
+                                "abbr": "ACCM"
+                            },
+                            {
+                                "name": "Emergency Medical Services",
+                                "abbr": "EMS"
+                            },
+                            {
+                                "name": "Internal Medicine-Critical Care Medicine",
+                                "abbr": "IMCM"
+                            },
+                            {
+                                "name": "Medical Toxicology",
+                                "abbr": "MT"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Emergency Medicine",
+                                "abbr": "PEM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            },
+                            {
+                                "name": "Undersea and Hyperbaric Medicine",
+                                "abbr": "UAHM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Family Medicine",
-                        "abbr": "FM"
+                    "Family Medicine": {
+                        "abbr": "FM",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Geriatric Medicine",
+                                "abbr": "GM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "General Surgery",
-                        "abbr": "GS"
+                    "General Surgery": {
+                        "abbr": "GS",
+                        "specialties": [
+                            {
+                                "name": "Complex General Surgical Oncology",
+                                "abbr": "CGSO"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Pediatric Surgery",
+                                "abbr": "PS"
+                            },
+                            {
+                                "name": "Surgical Critical Care",
+                                "abbr": "SCC"
+                            },
+                            {
+                                "name": "Vascular Surgery",
+                                "abbr": "VS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Internal Medicine",
-                        "abbr": "IM"
+                    "Internal Medicine": {
+                        "abbr": "IM",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Adult Congenital Heart Disease",
+                                "abbr": "ACHD"
+                            },
+                            {
+                                "name": "Advanced Heart Failure and Transplant Cardiology",
+                                "abbr": "AHFATC"
+                            },
+                            {
+                                "name": "Cardiovascular Disease",
+                                "abbr": "CD"
+                            },
+                            {
+                                "name": "Clinical Cardiac Electrophysiology",
+                                "abbr": "CCE"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Endocrinology, Diabetes, and Metabolism",
+                                "abbr": "EDAM"
+                            },
+                            {
+                                "name": "Gastroenterology",
+                                "abbr": "G"
+                            },
+                            {
+                                "name": "Geriatric Medicine",
+                                "abbr": "GM"
+                            },
+                            {
+                                "name": "Hematology",
+                                "abbr": "H"
+                            },
+                            {
+                                "name": "Hematology and Medical Oncology",
+                                "abbr": "HAMO"
+                            },
+                            {
+                                "name": "Nephrology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Pulmonary Disease",
+                                "abbr": "PD"
+                            },
+                            {
+                                "name": "Pulmonary Disease and Critical Care Medicine",
+                                "abbr": "PDACCM"
+                            },
+                            {
+                                "name": "Rheumatology",
+                                "abbr": "R"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            },
+                            {
+                                "name": "Transplant Hepatology",
+                                "abbr": "TH"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Neurological Surgery",
-                        "abbr": "NS"
+                    "Neurological Surgery": {
+                        "abbr": "NS",
+                        "specialties": [
+                            {
+                                "name": "Endovascular Surgical Neuroradiology",
+                                "abbr": "ESN"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Neurology",
-                        "abbr": "N"
+                    "Neurology": {
+                        "abbr": "N",
+                        "specialties": [
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Child Neurology/Pediatric Neurology",
+                                "abbr": "CNN"
+                            },
+                            {
+                                "name": "Clinical Neurophysiology",
+                                "abbr": "CN"
+                            },
+                            {
+                                "name": "Epilepsy",
+                                "abbr": "E"
+                            },
+                            {
+                                "name": "Neurocritical Care",
+                                "abbr": "NC"
+                            },
+                            {
+                                "name": "Neurodevelopmental Disabilities",
+                                "abbr": "ND"
+                            },
+                            {
+                                "name": "Neuromuscular Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Vascular Neurology",
+                                "abbr": "VN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Obstetrics and Gynecology",
-                        "abbr": "OAG"
+                    "Obstetrics and Gynecology": {
+                        "abbr": "OAG",
+                        "specialties": [
+                            {
+                                "name": "Complex Family Planning",
+                                "abbr": "CFP"
+                            },
+                            {
+                                "name": "Critical Care Medicine",
+                                "abbr": "CCM"
+                            },
+                            {
+                                "name": "Female Pelvic Medicine and Reconstructive Surgery",
+                                "abbr": "FPMARS"
+                            },
+                            {
+                                "name": "Gynecologic Oncology",
+                                "abbr": "GO"
+                            },
+                            {
+                                "name": "Maternal-Fetal Medicine",
+                                "abbr": "MM"
+                            },
+                            {
+                                "name": "Reproductive Endocrinology and Infertility",
+                                "abbr": "REAI"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Orthopaedic Surgery",
-                        "abbr": "OS"
+                    "Orthopaedic Surgery": {
+                        "abbr": "OS",
+                        "specialties": [
+                            {
+                                "name": "Adult Reconstructive Orthopaedic Surgery",
+                                "abbr": "AROS"
+                            },
+                            {
+                                "name": "Foot and Ankle Orthopaedic Surgery",
+                                "abbr": "FAAOS"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Musculoskeletal Oncology",
+                                "abbr": "MO"
+                            },
+                            {
+                                "name": "Orthopaedic Sports Medicine",
+                                "abbr": "OSM"
+                            },
+                            {
+                                "name": "Orthopaedic Surgery of the Spine",
+                                "abbr": "OSOTS"
+                            },
+                            {
+                                "name": "Orthopaedic Trauma",
+                                "abbr": "OT"
+                            },
+                            {
+                                "name": "Pediatric Orthopaedic Surgery",
+                                "abbr": "POS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Otolaryngology-Head and Neck Surgery",
-                        "abbr": "OANS"
+                    "Otolaryngology-Head and Neck Surgery": {
+                        "abbr": "OANS",
+                        "specialties": [
+                            {
+                                "name": "Complex Pediatric Otolaryngology",
+                                "abbr": "CPO"
+                            },
+                            {
+                                "name": "Neurotology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Plastic Surgery within the Head and Neck",
+                                "abbr": "PSWTHAN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Pathology",
-                        "abbr": "P"
+                    "Pathology": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Blood Banking-Transfusion Medicine",
+                                "abbr": "BBM"
+                            },
+                            {
+                                "name": "Chemical Pathology",
+                                "abbr": "CP"
+                            },
+                            {
+                                "name": "Clinical Informatics",
+                                "abbr": "CI"
+                            },
+                            {
+                                "name": "Cytopathology",
+                                "abbr": "C"
+                            },
+                            {
+                                "name": "Dermatopathology",
+                                "abbr": "D"
+                            },
+                            {
+                                "name": "Forensic Pathology",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Forensic Pathology",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Hematopathology/Hematology",
+                                "abbr": "H"
+                            },
+                            {
+                                "name": "Medical Microbiology Pathology",
+                                "abbr": "MMP"
+                            },
+                            {
+                                "name": "Molecular Genetic Pathology",
+                                "abbr": "MGP"
+                            },
+                            {
+                                "name": "Neuropathology",
+                                "abbr": "N"
+                            },
+                            {
+                                "name": "Pediatric Pathology",
+                                "abbr": "PP"
+                            },
+                            {
+                                "name": "Selective Pathology",
+                                "abbr": "SP"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Pediatrics",
-                        "abbr": "P"
+                    "Pediatrics": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Adolescent Medicine",
+                                "abbr": "AM"
+                            },
+                            {
+                                "name": "Child Abuse Pediatrics",
+                                "abbr": "CAP"
+                            },
+                            {
+                                "name": "Developmental and Behavioral Pediatrics",
+                                "abbr": "DABP"
+                            },
+                            {
+                                "name": "Medical Toxicology",
+                                "abbr": "MT"
+                            },
+                            {
+                                "name": "Neonatal-Perinatal Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pediatric Cardiology",
+                                "abbr": "PC"
+                            },
+                            {
+                                "name": "Pediatric Critical Care Medicine",
+                                "abbr": "PCCM"
+                            },
+                            {
+                                "name": "Pediatric Emergency Medicine",
+                                "abbr": "PEM"
+                            },
+                            {
+                                "name": "Pediatric Endocrinology",
+                                "abbr": "PE"
+                            },
+                            {
+                                "name": "Pediatric Gastroenterology",
+                                "abbr": "PG"
+                            },
+                            {
+                                "name": "Pediatric Hematology-Oncology",
+                                "abbr": "PH"
+                            },
+                            {
+                                "name": "Pediatric Hospital Medicine",
+                                "abbr": "PHM"
+                            },
+                            {
+                                "name": "Pediatric Infectious Disease",
+                                "abbr": "PID"
+                            },
+                            {
+                                "name": "Pediatric Nephrology",
+                                "abbr": "PN"
+                            },
+                            {
+                                "name": "Pediatric Pulmonology",
+                                "abbr": "PP"
+                            },
+                            {
+                                "name": "Pediatric Rheumatology",
+                                "abbr": "PR"
+                            },
+                            {
+                                "name": "Pediatric Sports Medicine",
+                                "abbr": "PSM"
+                            },
+                            {
+                                "name": "Pediatric Transplant Hepatology",
+                                "abbr": "PTH"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Physical Medicine and Rehabilitation",
-                        "abbr": "PMAR"
+                    "Physical Medicine and Rehabilitation": {
+                        "abbr": "PMAR",
+                        "specialties": [
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Neuromuscular Medicine",
+                                "abbr": "NM"
+                            },
+                            {
+                                "name": "Pain Medicine",
+                                "abbr": "PM"
+                            },
+                            {
+                                "name": "Pediatric Rehabilitation Medicine",
+                                "abbr": "PRM"
+                            },
+                            {
+                                "name": "Spinal Cord Injury Medicine",
+                                "abbr": "SCIM"
+                            },
+                            {
+                                "name": "Sports Medicine",
+                                "abbr": "SM"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Plastic Surgery",
-                        "abbr": "PS"
+                    "Plastic Surgery": {
+                        "abbr": "PS",
+                        "specialties": [
+                            {
+                                "name": "Craniofacial Surgery",
+                                "abbr": "CS"
+                            },
+                            {
+                                "name": "Hand Surgery",
+                                "abbr": "HS"
+                            },
+                            {
+                                "name": "Plastic Surgery within the Head and Neck",
+                                "abbr": "PSWTHAN"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Psychiatry",
-                        "abbr": "P"
+                    "Psychiatry": {
+                        "abbr": "P",
+                        "specialties": [
+                            {
+                                "name": "Addiction Psychiatry",
+                                "abbr": "AP"
+                            },
+                            {
+                                "name": "Brain Injury Medicine",
+                                "abbr": "BIM"
+                            },
+                            {
+                                "name": "Child and Adolescent Psychiatry",
+                                "abbr": "CAAP"
+                            },
+                            {
+                                "name": "Consultation-Liasion Psychiatry/Psychosomatic Medicine",
+                                "abbr": "CPM"
+                            },
+                            {
+                                "name": "Forensic Psychiatry",
+                                "abbr": "FP"
+                            },
+                            {
+                                "name": "Geriatric Psychiatry",
+                                "abbr": "GP"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Thoracic Surgery/Thoracic and Cardiac Surgery",
-                        "abbr": "TSACS"
+                    "Thoracic Surgery/Thoracic and Cardiac Surgery": {
+                        "abbr": "TSACS",
+                        "specialties": [
+                            {
+                                "name": "Congenital Cardiac Surgery",
+                                "abbr": "CCS"
+                            }
+                        ]
                     },
-                    {
-                        "name": "Urology",
-                        "abbr": "U"
+                    "Urology": {
+                        "abbr": "U",
+                        "specialties": [
+                            {
+                                "name": "Female Pelvic Medicine and Reconstructive Surgery",
+                                "abbr": "FPMARS"
+                            },
+                            {
+                                "name": "Pediatric Urology",
+                                "abbr": "PU"
+                            }
+                        ]
                     }
-                ]
+                }
             },
             "Nursing": {
                 "abbr": "N",
@@ -346,7 +1472,7 @@
                         "abbr": "DN"
                     },
                     {
-                        "name": "Domestic  Keeolence Nursing",
+                        "name": "Domestic Violence Nursing",
                         "abbr": "DVN"
                     },
                     {
@@ -749,7 +1875,7 @@
                 ]
             },
             "Pharmacy": {
-                "abbr": "PH",
+                "abbr": "P",
                 "specialties": [
                     {
                         "name": "Adult Medicine",
@@ -1118,11 +2244,13 @@
                         "abbr": "VS"
                     }
                 ]
-            },
-            "MISC": {
-                "abbr": "MISC",
-                "specialties": []
             }
-        }
+        },
+        "specialties": [
+            {
+                "name": "MISC",
+                "abbr": "M"
+            }
+        ]
     }
 }
