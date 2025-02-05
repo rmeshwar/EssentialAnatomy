@@ -9,7 +9,7 @@ import traceback
 
 
 def select_groups(request):
-    return render(request, 'select_groups.html')
+    return render(request, 'home.html')
 
 
 @csrf_exempt
