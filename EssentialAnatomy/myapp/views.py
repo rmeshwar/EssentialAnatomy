@@ -9,8 +9,10 @@ import traceback
 
 
 def select_groups(request):
-    return render(request, 'select_groups.html')
+    return render(request, 'home.html')
 
+def about(request):
+    return render(request, 'about.html')
 
 @csrf_exempt
 def generate_report(request):
