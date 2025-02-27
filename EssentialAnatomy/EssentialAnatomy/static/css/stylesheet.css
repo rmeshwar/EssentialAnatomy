@@ -1,0 +1,109 @@
+#myNavbar:hover {
+    background-color: #a38172;
+    color: #EEE2DC;
+
+}
+.button-9 {
+    appearance: button;
+    backface-visibility: hidden;
+    background-color: #123C69;
+    border-radius: 6px;
+    border-width: 0;
+    box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    font-family: -apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;
+    font-size: 100%;
+    height: 44px;
+    line-height: 1.15;
+    margin: 12px 0 0;
+    outline: none;
+    overflow: hidden;
+    padding: 0 25px;
+    position: relative;
+    text-align: center;
+    text-transform: none;
+    transform: translateZ(0);
+    transition: all .2s,box-shadow .08s ease-in;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 175px;
+}
+
+.button-9:disabled {
+    cursor: default;
+}
+
+.button-9:focus {
+    box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
+}
+
+.myContainer {
+    display: flex;
+    align-items: center;
+    border-width: 10px;
+    border-color: black;
+}
+
+button {
+    margin: 20px;
+}
+
+video {
+
+    margin: 30px;
+}
+
+h3, p {
+    padding: 10px;
+}
+
+#floatCont {
+    width: 100%;
+}
+
+#picture {
+    padding-right: 40px;
+    padding-left: 20px;
+    float: right;
+    width: 20%;
+}
+
+.container-fluid:before {
+    background-color: #EDC7B7;
+    height: 100%;
+    position: absolute;
+}
+
+.footer-basic {
+    padding:40px 0;
+    box-shadow: inset 0px 15px 20px -20px rgba(0,0,0);
+    background: rgba(237, 199, 183, 0.5);
+    color:rgba(0, 0, 0, 0.8);
+}
+
+.footer-basic ul {
+    padding:0;
+    list-style:none;
+    text-align:center;
+    font-size:18px;
+    line-height:1.6;
+    margin-bottom:0;
+}
+
+.footer-basic li {
+    padding:0 10px;
+}
+
+.footer-basic ul a {
+    color:inherit;
+    text-decoration:none;
+    opacity:0.8;
+}
+
+.footer-basic ul a:hover {
+    opacity:1;
+}
+
