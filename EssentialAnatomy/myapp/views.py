@@ -8,11 +8,14 @@ from django.conf import settings
 import traceback
 
 
-def select_groups(request):
+def home(request):
     return render(request, 'home.html')
 
 def about(request):
     return render(request, 'about.html')
+
+def generate(request):
+    return render(request, 'generate.html')
 
 @csrf_exempt
 def generate_report(request):
