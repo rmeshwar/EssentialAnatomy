@@ -18,36 +18,22 @@ def generate(request):
     return render(request, 'generate.html')
 
 @csrf_exempt
-def generate_report(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        selected_columns = data.get('selected_columns')
-        print(f"Frontend Selected Columns (Backend): {selected_columns}")
-
-        # Run the command to generate the report based on selected columns
+def generate_report_view(request):
+    if request.method == "POST":
         try:
-            # Serialize selected_columns to a JSON string
-            columns_json_str = json.dumps(selected_columns)
+            form_data = json.loads(request.body)
+            # Convert form_data to a JSON string for the management command
+            data_str = json.dumps(form_data)
 
-            # Define a path to save the report in the static files directory
+            # Name of the output file
             static_report_path = os.path.join(settings.BASE_DIR, 'EssentialAnatomy', 'static', 'survey_report_combined.pdf')
 
-            # Call the management command with the serialized JSON string
-            call_command('generate_report', '--columns', columns_json_str)
+            # Call the management command with --data
+            call_command('generate_report', f'--data={data_str}')
 
-            # Move the generated report to the static folder for easy download
-            if os.path.exists("survey_report_combined.pdf"):
-                if os.path.exists(static_report_path):
-                    os.remove(static_report_path)  # Remove the existing file if it already exists
-                os.rename("survey_report_combined.pdf", static_report_path)
-
-            # Return a response that contains a link to download the generated PDF
-            response_data = {'download_url': settings.STATIC_URL + 'survey_report_combined.pdf'}
-            return JsonResponse(response_data)
-
+            # Return download link
+            download_url = settings.STATIC_URL + 'survey_report_combined.pdf'
+            return JsonResponse({"download_url": download_url})
         except Exception as e:
-            # Print the full traceback to get more details about the error
-            traceback.print_exc()
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method."}, status=400)

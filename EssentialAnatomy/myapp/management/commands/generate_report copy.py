@@ -19,26 +19,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--data',
+            '--columns',
             type=str,
-            help='JSON string of form data (profession, disciplines, regions)',
+            help='JSON string of selected columns with deselected children',
             required=True
         )
 
     def handle(self, *args, **kwargs):
-        form_data_json = kwargs['data']
+        columns_json = kwargs['columns']
         try:
-            form_data = json.loads(form_data_json)
+            selected_columns = json.loads(columns_json)
         except json.JSONDecodeError as e:
-            self.stdout.write(self.style.ERROR(f"Invalid JSON: {e}"))
-            return
-        
-        profession = form_data.get('profession', '')
-        selected_disciplines = form_data.get('disciplines', [])
-        selected_regions = form_data.get('regions', [])
-
-        if not profession:
-            self.stdout.write(self.style.ERROR("No profession selected; cannot generate report."))
+            self.stdout.write(self.style.ERROR(f"Invalid JSON for columns: {e}"))
             return
 
         # Load parsed_structure.json to handle main groups and subgroups
@@ -55,70 +47,65 @@ class Command(BaseCommand):
         expanded_categories, abbreviations_map = self.expand_structure(parsed_structure)
 
         processed_responses = []
+        for item in selected_columns:
+            parent_category = item['category']
+            deselected_children = set(item.get('deselected_children', []))
 
-        def add_processed_response(full_key):
-            """Helper to add a single processed response to the list, if valid in expanded_categories."""
-            matched_category = expanded_categories.get(full_key)
-            if matched_category:
-                category_parts = full_key.split(" / ")
-                if category_parts[0] == "Anatomist":
-                    processed_responses.append({
+            matched_category = expanded_categories.get(parent_category)
+            if not matched_category:
+                continue  # Skip if category not found
+
+            # Adjusted the logic here
+            category_parts = parent_category.split(" / ")
+
+            if category_parts[0] == "Anatomist":
+                # Handle Anatomist categories
+                processed_responses.append(
+                    {
                         "model": ProcessedResponseAnatomy,
                         "label": matched_category['label'],
-                        "full_key": full_key,
+                        "full_key": parent_category,
                         "is_anatomist": True,
                         "query": {},
-                        "exclusions": set()  # CHANGED: We no longer have a "deselected_children" concept
-                    })
-                elif category_parts[0] == "Clinician":
-                    # If there's a subcategory, handle it
-                    if len(category_parts) == 1:
-                        processed_responses.append({
+                        "exclusions": deselected_children
+                    }
+                )
+            elif category_parts[0] == "Clinician":
+                # Handle Clinician categories
+                if len(category_parts) == 1:
+                    # Parent category is "Clinician"
+                    processed_responses.append(
+                        {
                             "model": ProcessedResponseClinician,
                             "label": matched_category['label'],
-                            "full_key": full_key,
+                            "full_key": parent_category,
                             "is_anatomist": False,
                             "query": {},
-                            "exclusions": set()
-                        })
-                    elif len(category_parts) == 2:
-                        # e.g. "Clinician / Dentistry"
-                        professional_health_program = category_parts[1]
-                        processed_responses.append({
+                            "exclusions": deselected_children
+                        }
+                    )
+                elif len(category_parts) == 2:
+                    # Parent category is "Clinician / [Subcategory]"
+                    professional_health_program = category_parts[1]
+                    processed_responses.append(
+                        {
                             "model": ProcessedResponseClinician,
                             "label": matched_category['label'],
-                            "full_key": full_key,
+                            "full_key": parent_category,
                             "is_anatomist": False,
                             "query": {"professional_health_program": professional_health_program},
-                            "exclusions": set()
-                        })
+                            "exclusions": deselected_children
+                        }
+                    )
+                else:
+                    # If more than 2 parts, it's a child category (should not happen here)
+                    pass
 
-        if profession in ["anatomist", "both"]:
-            # Add the top-level "Anatomist" category if it exists
-            if "Anatomist" in expanded_categories:
-                add_processed_response("Anatomist")
-            # Then for each discipline from the user
-            for disc in selected_disciplines:
-                # This will produce keys like "Anatomist / Dentistry"
-                full_key = f"Anatomist / {disc}"
-                add_processed_response(full_key)
-
-        if profession in ["clinician", "both"]:
-            # Add the top-level "Clinician" category if it exists
-            if "Clinician" in expanded_categories:
-                add_processed_response("Clinician")
-            for disc in selected_disciplines:
-                full_key = f"Clinician / {disc}"
-                add_processed_response(full_key)
-
-        # If no processed_responses, we cannot generate a real PDF
         if not processed_responses:
-            self.stdout.write(self.style.ERROR("No valid categories found to generate a report."))
+            self.stdout.write(self.style.ERROR("No valid categories provided for generating the report."))
             return
 
-        self.selected_regions = selected_regions  # Not used by default, but could be integrated in the future
-
-        # The rest is the original PDF generation logic
+        # Generate a single PDF report for the combined responses
         self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map)
 
     def expand_structure(self, structure, parent_key='', parent_abbr=''):
