@@ -161,22 +161,13 @@ h3, p {
     display: block;
 }
 
-
-
-
-
-
-
-
-
-
- .checkbox-wrapper-21 .control {
+.checkbox-wrapper-21 .control {
      display: block;
      position: relative;
      padding-left: 30px;
      cursor: pointer;
      font-size: 18px;
- }
+}
 .checkbox-wrapper-21 .control input {
     position: absolute;
     z-index: -1;

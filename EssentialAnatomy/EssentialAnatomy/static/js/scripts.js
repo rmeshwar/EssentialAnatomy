@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateDisciplines() {
         const disciplineOptions = {
-            "clinician": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occupational Therapy", "Physical Therapy", "Physician Assistant"],
-            "anatomist": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occupational Therapy", "Physical Therapy", "Physician Assistant"],
-            "both": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occupational Therapy", "Physical Therapy", "Physician Assistant"],
+            "clinician": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occumpational Therapy", "Physical Therapy", "Physician Assistant"],
+            "anatomist": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occumpational Therapy", "Physical Therapy", "Physician Assistant"],
+            "both": ["Dental", "Medicine Allopathic", "Medicine Osteopathic", "Nursing", "Occumpational Therapy", "Physical Therapy", "Physician Assistant"],
         };
 
         selectedRole = document.querySelector('input[name="profession"]:checked')?.value;
