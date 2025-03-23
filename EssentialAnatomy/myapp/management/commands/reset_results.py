@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         tables = [
             'myapp_processedresponseanatomy',
-            # 'myapp_processedresponseclinician'
+            'myapp_processedresponseclinician'
         ]
 
         with connection.cursor() as cursor:

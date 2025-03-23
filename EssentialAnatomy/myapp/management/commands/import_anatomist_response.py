@@ -19,21 +19,21 @@ class Command(BaseCommand):
     def import_responses(self, file_path):
         df = pd.read_excel(file_path, engine='openpyxl')
 
-        # Skip the first three rows and limit to the first 20 responders
-        df = df.iloc[2:12]
+        # Skip the first three rows
+        df = df.iloc[2:]
 
         # Filter only the completed responses
         df = df[df.iloc[:, 4] == 100]  # Column E is the 5th column, index 4
 
 
         rating_map = {
-            'Not Important': 1,
-            'Less Important': 2,
-            'Moderately Important': 3,
-            'Average Importance': 4,
-            'More Important': 5,
-            'Very Important': 6,
-            'Essential': 7
+            'Not Important': 1, '1': 1, 1: 1,
+            'Less Important': 2, '2': 2, 2: 2,
+            'Moderately Important': 3, '3': 3, 3: 3,
+            'Average Importance': 4, '4': 4, 4: 4,
+            'More Important': 5, '5': 5, 5: 5,
+            'Very Important': 6, '6': 6, 6: 6,
+            'Essential': 7, '7': 7, 7: 7
         }
 
         program_category_map = {
@@ -55,10 +55,20 @@ class Command(BaseCommand):
             terminal_degree = row.iloc[17]  # Column R is index 17
             if terminal_degree == "Other (provide below)":
                 terminal_degree = row.iloc[18]  # Column S is index 18 if "Other"
-            professional_health_program = row.iloc[23] if pd.notna(row.iloc[23]) else row.iloc[
-                21]  # Column V is index 22, Column X is index 23
+            professional_health_program = row.iloc[22] if pd.notna(row.iloc[22]) else row.iloc[20]  # Column W is index 22, Column U is index 20
+
+            # Exclude invalid categories
+            excluded_categories = {"Other (please specify)", "Other (provide below):", "MISC"}
+            if professional_health_program in excluded_categories:
+                print(f"Skipping responder due to excluded professional health program: {professional_health_program}")
+                continue  # Skip this row
 
             program_category = program_category_map.get(professional_health_program, "MISC")
+
+            # Exclude if still in excluded categories
+            if program_category in excluded_categories:
+                print(f"Skipping responder due to excluded program category: {program_category}")
+                continue
 
             max_responder_id += 1
             responder, created = ResponderAnatomy.objects.get_or_create(

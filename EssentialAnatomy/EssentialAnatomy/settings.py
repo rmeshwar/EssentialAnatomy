@@ -79,9 +79,9 @@ WSGI_APPLICATION = 'EssentialAnatomy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'essentialanatomy',
-        'USER': 'dev',
-        'PASSWORD': 'Hk@94BtrJ^rGcCC',
+        'NAME': 'essential_anatomy',
+        'USER': 'ridaa',
+        'PASSWORD': 'Gummybear13',
         'HOST': 'localhost',
         'PORT': '3306',
     }

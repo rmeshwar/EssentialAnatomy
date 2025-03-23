@@ -6,6 +6,7 @@ from django.core.management import call_command
 import os
 from django.conf import settings
 import traceback
+from myapp.models import ProcessedResponseAnatomy, ProcessedResponseClinician
 
 
 def home(request):
@@ -37,3 +38,20 @@ def generate_report_view(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method."}, status=400)
+
+def get_filtered_disciplines(request):
+    """
+    Retrieves only disciplines that have processed responses in the database.
+    """
+    # Query distinct professional health programs from processed response tables
+    anatomist_programs = ProcessedResponseAnatomy.objects.values_list('professional_health_program', flat=True).distinct()
+    clinician_programs = ProcessedResponseClinician.objects.values_list('professional_health_program', flat=True).distinct()
+
+    # Build the response structure
+    response_data = {
+        "Anatomist": list(anatomist_programs),
+        "Clinician": list(clinician_programs)
+    }
+
+
+    return JsonResponse(response_data)

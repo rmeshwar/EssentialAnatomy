@@ -2,11 +2,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     let selectedRole = "";
     let directChildren = [];  // Will hold the direct children from "Clinician" or "Anatomist"
+    loadDisciplines();
 
     window.nextPage = function(pageNumber) {
-        if (pageNumber === 2) {
-            loadDisciplines();
-        }
         showPage(pageNumber);
     };
 
@@ -21,68 +19,75 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById(`page${pageNumber}`).classList.add("active");
     }
 
+    function getTotalSelectedColumns() {
+        let total = 0;
+
+        // 1) Check if “Anatomist” parent is checked
+        const anatParentChecked = document.getElementById("anatomistParent").checked;
+        const anatChildren = document.querySelectorAll(".child-anat:checked");
+        if (anatParentChecked) {
+            // That entire group is 1 column
+            total += 1;
+        } else {
+            // Each child is a separate column
+            total += anatChildren.length;
+        }
+
+        // 2) Check if “Clinician” parent is checked
+        const clinParentChecked = document.getElementById("clinicianParent").checked;
+        const clinChildren = document.querySelectorAll(".child-clin:checked");
+        if (clinParentChecked) {
+            total += 1;
+        } else {
+            total += clinChildren.length;
+        }
+
+        return total;
+    }
+
     // CHANGED: loadDisciplines() will fetch the direct children of "Clinician" or "Anatomist" 
     // from parsed_structure.json (via a local request).
     function loadDisciplines() {
-        selectedRole = document.querySelector('input[name="profession"]:checked')?.value;
-
-        // If the user hasn't chosen a role, do nothing or show alert
-        if (!selectedRole) {
-            alert("Please select a profession first.");
-            return;
-        }
-
-        // We'll fetch the JSON file and then display direct children accordingly
-        fetch(PARSED_STRUCTURE_URL)
+        console.log("DEBUG: Fetching parsed_structure.json...");
+        // Ensure both containers are visible
+        document.getElementById("anatomistContainer").style.display = "block";
+        document.getElementById("clinicianContainer").style.display = "block";
+    
+        fetch("/api/get_filtered_disciplines/")
             .then(response => response.json())
             .then(data => {
-                let container = document.getElementById("disciplineOptions");
-                container.innerHTML = "";
-
-                // Depending on the chosen role
-                let children = [];
-                if (selectedRole === "clinician") {
-                    // direct children = keys in data["Clinician"]["subgroups"]
-                    if (data["Clinician"] && data["Clinician"]["subgroups"]) {
-                        children = Object.keys(data["Clinician"]["subgroups"]);
-                    }
-                } else if (selectedRole === "anatomist") {
-                    // direct children = the items in data["Anatomist"]["specialties"].map(s => s.name)
-                    if (data["Anatomist"] && data["Anatomist"]["specialties"]) {
-                        children = data["Anatomist"]["specialties"].map(obj => obj.name);
-                    }
-                } else if (selectedRole === "both") {
-                    // We'll combine both sets
-                    let c_children = [];
-                    let a_children = [];
-                    if (data["Clinician"] && data["Clinician"]["subgroups"]) {
-                        c_children = Object.keys(data["Clinician"]["subgroups"]);
-                    }
-                    if (data["Anatomist"] && data["Anatomist"]["specialties"]) {
-                        a_children = data["Anatomist"]["specialties"].map(obj => obj.name);
-                    }
-                    children = [...c_children, ...a_children];
-                }
-
-                directChildren = children;
-
-                // Render as checkboxes
-                directChildren.forEach(child => {
+                
+                // Fill Anatomist Children (filtered from ProcessedResponseAnatomy)
+                const anatomistChildren = data["Anatomist"] || [];
+                const anatDiv = document.getElementById("anatomistChildren");
+                anatDiv.innerHTML = ""; // Clear previous entries
+                anatomistChildren.forEach(child => {
                     const label = document.createElement("label");
-                    label.innerHTML = `<input type="checkbox" name="discipline" value="${child}"> ${child}`;
-                    container.appendChild(label);
-                    container.appendChild(document.createElement("br"));
+                    label.innerHTML = `<input type="checkbox" class="child-anat" name="discipline" value="${child}" data-parent="Anatomist"> ${child}`;
+                    anatDiv.appendChild(label);
+                    anatDiv.appendChild(document.createElement("br"));
+                });
+    
+                // Fill Clinician Children (filtered from ProcessedResponseClinician)
+                const clinicianChildren = data["Clinician"] || [];
+                const clinDiv = document.getElementById("clinicianChildren");
+                clinDiv.innerHTML = ""; // Clear previous entries
+                clinicianChildren.forEach(child => {
+                    const label = document.createElement("label");
+                    label.innerHTML = `<input type="checkbox" class="child-clin" name="discipline" value="${child}" data-parent="Clinician"> ${child}`;
+                    clinDiv.appendChild(label);
+                    clinDiv.appendChild(document.createElement("br"));
                 });
             })
             .catch(err => {
-                console.error("Error loading structure:", err);
+                console.error("Error loading filtered disciplines:", err);
             });
     }
 
     // CHANGED: On clicking the Submit button on page3, gather data and send to server
     const submitBtn = document.getElementById("submitSelections");
     submitBtn.addEventListener("click", function() {
-        const selectedProf = document.querySelector('input[name="profession"]:checked')?.value;
+        const selectedProf = "both";
         if (!selectedProf) {
             alert("Please go back and select a profession.");
             return;
@@ -94,6 +99,56 @@ document.addEventListener("DOMContentLoaded", function() {
             chosenDisciplines.push(chk.value);
         });
 
+        // We'll store columns in an array, but also store child expansions in an object
+        // so we can handle partial or full selection
+        let finalColumns = [];
+        let expansions = {}; // expansions["Anatomist"] = ["Dentistry", "Nursing", etc..]
+
+        // Single role approach
+        if (selectedProf === "clinician" || selectedProf === "anatomist") {
+            // Just gather whichever are checked
+            const checkedDiscs = document.querySelectorAll('input[name="discipline"]:checked');
+            checkedDiscs.forEach(chk => {
+                finalColumns.push({ parent: chk.dataset.parent, child: chk.value });
+            });
+        } else if (selectedProf === "both") {
+            // We check the "Anatomist" parent
+            const anatParentChecked = document.getElementById("anatomistParent").checked;
+            const allAnatChildren = document.querySelectorAll(".child-anat");
+            const anatCheckedChildren = [...allAnatChildren].filter(chk => chk.checked).map(chk => chk.value);
+
+            if (anatParentChecked) {
+                const deselectedAnatChildren = [...allAnatChildren].filter(chk => !chk.checked).map(chk => chk.value);
+                finalColumns.push({
+                    parent: "Anatomist",
+                    children: anatCheckedChildren.length === allAnatChildren.length ? null : anatCheckedChildren,
+                    deselected: deselectedAnatChildren.length > 0 ? deselectedAnatChildren : null
+                });
+            } else {
+                anatCheckedChildren.forEach(child => {
+                    finalColumns.push({ parent: "Anatomist", child });
+                });
+            }
+
+            // Similarly for "Clinician"
+            const clinParentChecked = document.getElementById("clinicianParent").checked;
+            const allClinChildren = document.querySelectorAll(".child-clin");
+            const clinCheckedChildren = [...allClinChildren].filter(chk => chk.checked).map(chk => chk.value);
+
+            if (clinParentChecked) {
+                const deselectedClinChildren = [...allClinChildren].filter(chk => !chk.checked).map(chk => chk.value);
+                finalColumns.push({
+                    parent: "Clinician",
+                    children: clinCheckedChildren.length === allClinChildren.length ? null : clinCheckedChildren,
+                    deselected: deselectedClinChildren.length > 0 ? deselectedClinChildren : null
+                });
+            } else {
+                clinCheckedChildren.forEach(child => {
+                    finalColumns.push({ parent: "Clinician", child });
+                });
+            }
+        }
+
         // Collect chosen body regions
         let chosenRegions = [];
         document.querySelectorAll('input[name="region"]:checked').forEach(chk => {
@@ -103,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Build the data payload
         let payload = {
             profession: selectedProf,
-            disciplines: chosenDisciplines,
+            columns: finalColumns,
             regions: chosenRegions
         };
 
@@ -122,9 +177,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return response.json();
         })
         .then(data => {
-            // The server will return a { download_url: ... } or { error: ... }
             if (data.download_url) {
-                // Trigger download
                 const link = document.createElement('a');
                 link.href = data.download_url;
                 link.download = 'survey_report.pdf';
@@ -139,5 +192,27 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error("Error generating report:", error);
             alert("Error generating report: " + error);
         });
+    });
+
+    // Parent check event listeners
+    ["anatomistParent", "clinicianParent"].forEach(parentId => {
+        const parentElement = document.getElementById(parentId);
+        if (parentElement) {
+            parentElement.addEventListener("change", function() {
+                const isChecked = this.checked;
+                document.querySelectorAll(`.${parentId === "anatomistParent" ? "child-anat" : "child-clin"}`)
+                    .forEach(chk => chk.checked = isChecked);
+            });
+        }
+    });
+
+    // Limit selection to 9 columns
+    document.addEventListener("change", function(e) {
+        if (e.target.name === "discipline") {
+            if (getTotalSelectedColumns() > 9) {
+                e.target.checked = false;
+                alert("You can only select up to 9 columns total!");
+            }
+        }
     });
 });

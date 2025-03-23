@@ -3,3 +3,4 @@ pymysql
 pandas
 reportlab
 cryptography
+openpyxl

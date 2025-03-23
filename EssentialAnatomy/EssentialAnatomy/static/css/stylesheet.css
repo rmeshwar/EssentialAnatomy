@@ -1,3 +1,7 @@
+body {
+    font-size: 1.3rem; /* Adjust as needed */
+}
+
 #myNavbar:hover {
     background-color: #a38172;
     color: #EEE2DC;

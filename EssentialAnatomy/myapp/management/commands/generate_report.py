@@ -5,6 +5,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch, mm
 from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.platypus import PageBreak, Paragraph
 from django.conf import settings
 import os
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -34,7 +36,7 @@ class Command(BaseCommand):
             return
         
         profession = form_data.get('profession', '')
-        selected_disciplines = form_data.get('disciplines', [])
+        columns_array = form_data.get('columns', [])
         selected_regions = form_data.get('regions', [])
 
         if not profession:
@@ -56,60 +58,22 @@ class Command(BaseCommand):
 
         processed_responses = []
 
-        def add_processed_response(full_key):
-            """Helper to add a single processed response to the list, if valid in expanded_categories."""
-            matched_category = expanded_categories.get(full_key)
-            if matched_category:
-                category_parts = full_key.split(" / ")
-                if category_parts[0] == "Anatomist":
-                    processed_responses.append({
-                        "model": ProcessedResponseAnatomy,
-                        "label": matched_category['label'],
-                        "full_key": full_key,
-                        "is_anatomist": True,
-                        "query": {},
-                        "exclusions": set()  # CHANGED: We no longer have a "deselected_children" concept
-                    })
-                elif category_parts[0] == "Clinician":
-                    # If there's a subcategory, handle it
-                    if len(category_parts) == 1:
-                        processed_responses.append({
-                            "model": ProcessedResponseClinician,
-                            "label": matched_category['label'],
-                            "full_key": full_key,
-                            "is_anatomist": False,
-                            "query": {},
-                            "exclusions": set()
-                        })
-                    elif len(category_parts) == 2:
-                        # e.g. "Clinician / Dentistry"
-                        professional_health_program = category_parts[1]
-                        processed_responses.append({
-                            "model": ProcessedResponseClinician,
-                            "label": matched_category['label'],
-                            "full_key": full_key,
-                            "is_anatomist": False,
-                            "query": {"professional_health_program": professional_health_program},
-                            "exclusions": set()
-                        })
+        for col in columns_array:
+            parent = col.get("parent")
+            child = col.get("child")  # might be None
+            deselected_children = col.get("deselected", None)
 
-        if profession in ["anatomist", "both"]:
-            # Add the top-level "Anatomist" category if it exists
-            if "Anatomist" in expanded_categories:
-                add_processed_response("Anatomist")
-            # Then for each discipline from the user
-            for disc in selected_disciplines:
-                # This will produce keys like "Anatomist / Dentistry"
-                full_key = f"Anatomist / {disc}"
-                add_processed_response(full_key)
+            # Build a full_key string like "Anatomist" or "Anatomist / Dentistry"
+            if child:
+                full_key = f"{parent} / {child}"
+            else:
+                full_key = parent
 
-        if profession in ["clinician", "both"]:
-            # Add the top-level "Clinician" category if it exists
-            if "Clinician" in expanded_categories:
-                add_processed_response("Clinician")
-            for disc in selected_disciplines:
-                full_key = f"Clinician / {disc}"
-                add_processed_response(full_key)
+            print(f"Processing {full_key} - Deselected: {deselected_children}")
+            self.add_processed_response(full_key, processed_responses, expanded_categories, deselected_children)
+
+        # no more direct calls
+
 
         # If no processed_responses, we cannot generate a real PDF
         if not processed_responses:
@@ -119,7 +83,70 @@ class Command(BaseCommand):
         self.selected_regions = selected_regions  # Not used by default, but could be integrated in the future
 
         # The rest is the original PDF generation logic
-        self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map)
+        self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map, columns_array)
+
+    
+    def add_processed_response(self, full_key, processed_list, expanded, deselected_children=None):
+        matched_category = expanded.get(full_key)
+        if not matched_category:
+            return
+        category_parts = full_key.split(" / ")
+        if category_parts[0] == "Anatomist":
+            if deselected_children:
+                print(f"Checking exclusions for {full_key} - Deselected: {deselected_children}")  # Debugging
+                if len(category_parts) > 1:  # Check if this is a child category
+                    child_name = category_parts[1]
+                    if child_name in deselected_children:
+                        print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
+                        return  # Skip adding this to the processed responses
+                else:
+                    print(f"KEEPING {full_key}, not in deselected list.")  # Debugging
+
+            print(f"ADDING {full_key} to processed_responses")  # DEBUG
+            processed_list.append({
+                "model": ProcessedResponseAnatomy,
+                "label": matched_category['label'],
+                "full_key": full_key,
+                "is_anatomist": True,
+                "query": {},
+                "exclusions": set(deselected_children) if deselected_children else set()
+            })
+        elif category_parts[0] == "Clinician":
+            if deselected_children:
+                print(f"Checking exclusions for {full_key} - Deselected: {deselected_children}")  # Debugging
+                if len(category_parts) > 1:  # Only exclude if this is a child category
+                    child_name = category_parts[1]
+                    if child_name in deselected_children:
+                        print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
+                        return  # Skip adding this to the processed responses
+                else:
+                    print(f"KEEPING {full_key}, not in deselected list.")  # Debugging
+
+            print(f"ADDING {full_key} to processed_responses")  # DEBUG
+            processed_list.append({
+                "model": ProcessedResponseClinician,
+                "label": matched_category['label'],
+                "full_key": full_key,
+                "is_anatomist": False,
+                "query": {},
+                "exclusions": set(deselected_children) if deselected_children else set()
+            })
+            if len(category_parts) == 2:
+                professional_health_program = category_parts[1]
+
+                # Check if an entry with this full_key already exists
+                if not any(entry["full_key"] == full_key for entry in processed_list):
+                    processed_list.append({
+                        "model": ProcessedResponseClinician,
+                        "label": matched_category['label'],
+                        "full_key": full_key,
+                        "is_anatomist": False,
+                        "query": {"professional_health_program": professional_health_program},
+                        "exclusions": set(deselected_children) if deselected_children else set()
+                    })
+
+
+
 
     def expand_structure(self, structure, parent_key='', parent_abbr=''):
         expanded = {}
@@ -149,20 +176,21 @@ class Command(BaseCommand):
 
         return expanded, abbreviations_map
 
-    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map):
+    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map, columns_array):
         def get_color_for_rating(rating):
-            """Return a color from red to green based on the rating (1 to 7)."""
-            # Normalize the rating to a value between 0 and 1
-            normalized = (rating - 1) / 6
-            # Interpolate between red (1, 0, 0) and green (0, 1, 0)
-            r = 1 - normalized
-            g = normalized
-            b = 0
+            """Return a specific color for each rating range using the provided hex values."""
+            if 1 <= rating <= 2.5:
+                return colors.HexColor("#F4B083")  # Red (Not Important)
+            elif 2.5 < rating <= 4:
+                return colors.HexColor("#FFE49A")  # Yellow (Less Important)
+            elif 4 < rating <= 5.5:
+                return colors.HexColor("#BDD6EE")  # Blue (More Important)
+            elif 5.5 < rating <= 7:
+                return colors.HexColor("#92D051")  # Green (Essential)
+            else:
+                return colors.white  # Default to white if rating is unexpected
 
-            r = (r + 1) / 2
-            g = (g + 1) / 2
-            b = (b + 1) / 2
-            return colors.Color(r, g, b)
+
 
         output_file_path = os.path.join(settings.BASE_DIR, 'EssentialAnatomy', 'static', 'survey_report_combined.pdf')
         doc = SimpleDocTemplate(output_file_path, pagesize=letter)
@@ -179,7 +207,10 @@ class Command(BaseCommand):
         col_widths = [first_col_width] + [other_col_width] * (len(processed_responses) + 1)
 
         # Build the report table data
-        sections = Section.objects.all()
+        if self.selected_regions:
+            sections = Section.objects.filter(name__in=self.selected_regions)
+        else:
+            sections = Section.objects.all()
         section_indices = []
         abbreviations_used = set()
 
@@ -207,11 +238,19 @@ class Command(BaseCommand):
                         row = [Paragraph(f"{response_topic.name}", styles['Normal'])]
                         total_ratings = []
                         for response in processed_responses:
+                            category_parts = response["full_key"].split(" / ")
+                            if len(category_parts) > 1:  # This is a child category
+                                child_name = category_parts[1]
+                                if child_name in response.get("exclusions", set()):
+                                    print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
+                                    continue  # Skip this child
                             processed_model, query = response['model'], response['query']
                             exclusions = response.get('exclusions', set())
 
-                            # Get responders excluding deselected subcategories
+                            exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
+                            print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
                             responders = self.get_responders(response, exclusions, expanded_categories)
+
 
                             # For ResponderAnatomy and ProcessedResponseAnatomy
                             if response['is_anatomist']:
@@ -270,10 +309,13 @@ class Command(BaseCommand):
                             abbreviations_used.add(abbr)
 
                             # Calculate the count (number of responses for this category)
-                            responders = self.get_responders(response, response.get('exclusions', set()), expanded_categories)
-                            count = responders.count()
+                            exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
+                            print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
+                            responders = self.get_responders(response, exclusions, expanded_categories)
+
 
                             # Format abbreviation with count "n={x}"
+                            count = responders.count()
                             abbr_with_count = f"{abbr} <font color='red' size='8'>n={count}</font>"
                             row.append(Paragraph(abbr_with_count, styles['Heading3']))
                             abbreviations_used.add(abbr)
@@ -287,11 +329,20 @@ class Command(BaseCommand):
                             row = [Paragraph(f"{element.name}", styles['Normal'])]
                             total_ratings = []
                             for response in processed_responses:
+                                category_parts = response["full_key"].split(" / ")
+                                if len(category_parts) > 1:  # This is a child category
+                                    child_name = category_parts[1]
+                                    if child_name in response.get("exclusions", set()):
+                                        print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
+                                        continue  # Skip this child
+
                                 processed_model, query = response['model'], response['query']
                                 exclusions = response.get('exclusions', set())
 
-                                # Get responders excluding deselected subcategories
+                                exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
+                                print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
                                 responders = self.get_responders(response, exclusions, expanded_categories)
+
 
                                 if response['is_anatomist']:
                                     responder_programs = responders.values_list('professional_health_program',
@@ -337,9 +388,15 @@ class Command(BaseCommand):
 
                             section_data.append(row)
 
-            header = [Paragraph('', styles['Heading3'])] + [
-                Paragraph(response['label'], styles['Heading3']) for response in processed_responses] + [
-                         Paragraph("Total", styles['Heading3'])]
+            unique_headers = []
+            seen_headers = set()
+
+            for response in processed_responses:
+                if response["full_key"] not in seen_headers:
+                    unique_headers.append(Paragraph(response['label'], styles['Heading3']))
+                    seen_headers.add(response["full_key"])
+
+            header = [Paragraph('', styles['Heading3'])] + unique_headers + [Paragraph("Total", styles['Heading3'])]
 
             table_style = TableStyle([
                 ('BACKGROUND', (0, 0), (len(processed_responses) + 1, 0), colors.grey),
@@ -424,6 +481,80 @@ class Command(BaseCommand):
                 for line in lines:
                     canvas.drawString(20 * mm, y_position, line)
                     y_position -= 10  # Move up for the next line
+                    
+        
+        elements.append(PageBreak())
+        summary_data = [["Parent", "Children"]]
+        
+        # We'll map e.g. "Anatomist" -> set(["Dentistry", "Nursing"]) 
+        # but also handle the case where we had "child=None"
+        parent_map = {}
+        for pr in processed_responses:
+            full_key = pr["full_key"]
+            parts = full_key.split(" / ")
+            if len(parts) == 1:
+                # Only parent
+                the_parent = parts[0]
+                if the_parent not in parent_map:
+                    parent_map[the_parent] = set()
+            elif len(parts) == 2:
+                the_parent, child = parts
+                if the_parent not in parent_map:
+                    parent_map[the_parent] = set()
+                parent_map[the_parent].add(child)
+        
+        for parent, childset in parent_map.items():
+            excluded_children = next((col.get("deselected", []) for col in columns_array if col["parent"] == parent), [])
+            if not childset and not excluded_children:
+                summary_data.append([parent, "ALL children selected"])
+            elif excluded_children:
+                wrapped_style = ParagraphStyle(name="WrappedText", fontSize=10, leading=12, alignment=TA_LEFT, wordWrap="CJK")
+
+                excluded_text = Paragraph(f"Excluded: {', '.join(sorted(excluded_children))}", wrapped_style)
+                summary_data.append([parent, excluded_text])
+            else:
+                print(f"SUMMARY: {parent} - Included: {', '.join(sorted(childset))}")  # DEBUG
+                summary_data.append([parent, ", ".join(sorted(childset))])
+                    
+        summary_table = Table(summary_data, colWidths=[3*inch, 4*inch])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+
+        centered_style = ParagraphStyle(name="CenteredText", parent=getSampleStyleSheet()["Heading2"], alignment=TA_CENTER)
+        elements.append(Paragraph("Summary of Parent-Child expansions", centered_style))
+        
+        elements.append(summary_table)
+
+        # Add a Color Key Section at the End
+        elements.append(Spacer(1, 12))
+        elements.append(Paragraph("Color Key", centered_style))
+
+        # Define colors and labels
+        color_labels = [
+            ("#F4B083", "Not Important (1-2.5)"),
+            ("#FFE49A", "Less Important (2.5-4)"),
+            ("#BDD6EE", "More Important (4-5.5)"),
+            ("#92D051", "Essential (5.5-7)")
+        ]
+
+        # Create table data for color key
+        color_key_data = [[Paragraph(label, getSampleStyleSheet()['Normal']), " "] for _, label in color_labels]
+
+        # Style and add color backgrounds
+        color_key_table = Table(color_key_data, colWidths=[2.5 * inch, 0.5 * inch])
+        color_key_table.setStyle(TableStyle([
+            ('BACKGROUND', (1, i), (1, i), colors.HexColor(color)) for i, (color, _) in enumerate(color_labels)
+        ] + [
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT')
+        ]))
+
+        # Ensure alignment with left margin
+        elements.append(color_key_table)
+
+        
 
         # Generate PDF with updated function call
         doc.build(elements,
@@ -442,7 +573,14 @@ class Command(BaseCommand):
                 )
             # Exclude responders from deselected subcategories
             if exclusions:
-                excluded_programs = [expanded_categories[ex]['label'] for ex in exclusions if ex in expanded_categories]
+                excluded_programs = set()
+                for ex in exclusions:
+                    if ex in expanded_categories:
+                        excluded_programs.add(expanded_categories[ex]['label'])
+                    else:
+                        excluded_programs.add(ex)  # Fallback in case it’s already a string
+
+                print(f"Filtering responders for {response['full_key']} - Excluding: {excluded_programs}")  # DEBUG
                 responders = responders.exclude(professional_health_program__in=excluded_programs)
         else:
             responders = ResponderClinician.objects.all()
