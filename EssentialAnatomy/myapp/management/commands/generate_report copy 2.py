@@ -8,6 +8,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from reportlab.platypus import PageBreak, Paragraph
 from django.conf import settings
+from django.db.models import Count
 import os
 from django.contrib.staticfiles.storage import staticfiles_storage
 import json
@@ -29,6 +30,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         form_data_json = kwargs['data']
+        # print("DEBUG: Raw input JSON to generate_report.py:")
+        # print(form_data_json)
         try:
             form_data = json.loads(form_data_json)
         except json.JSONDecodeError as e:
@@ -74,6 +77,11 @@ class Command(BaseCommand):
 
         # no more direct calls
 
+        print("DEBUG: Final processed_responses:")
+        for pr in processed_responses:
+            print(pr)
+
+
 
         # If no processed_responses, we cannot generate a real PDF
         if not processed_responses:
@@ -90,14 +98,31 @@ class Command(BaseCommand):
         matched_category = expanded.get(full_key)
         if not matched_category:
             return
+
         category_parts = full_key.split(" / ")
+        parent = category_parts[0]
+
+        # If this is a parent-level entry with no child, and children were deselected:
+        if len(category_parts) == 1 and deselected_children is not None:
+            # Get all known children from the expanded structure
+            all_children = {
+                key.split(" / ")[1]
+                for key in expanded
+                if key.startswith(f"{parent} /") and len(key.split(" / ")) == 2
+            }
+
+            # If all children were excluded, skip adding this response
+            if set(deselected_children) >= all_children:
+                # print(f"EXCLUDING {full_key} entirely because all children were deselected")
+                return
+
         if category_parts[0] == "Anatomist":
             if deselected_children:
                 print(f"Checking exclusions for {full_key} - Deselected: {deselected_children}")  # Debugging
                 if len(category_parts) > 1:  # Check if this is a child category
                     child_name = category_parts[1]
                     if child_name in deselected_children:
-                        print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
+                        # print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
                         return  # Skip adding this to the processed responses
                 else:
                     print(f"KEEPING {full_key}, not in deselected list.")  # Debugging
@@ -112,12 +137,13 @@ class Command(BaseCommand):
                 "exclusions": set(deselected_children) if deselected_children else set()
             })
         elif category_parts[0] == "Clinician":
+            professional_health_program = category_parts[1] if len(category_parts) > 1 else None
             if deselected_children:
-                print(f"Checking exclusions for {full_key} - Deselected: {deselected_children}")  # Debugging
+                # print(f"Checking exclusions for {full_key} - Deselected: {deselected_children}")  # Debugging
                 if len(category_parts) > 1:  # Only exclude if this is a child category
                     child_name = category_parts[1]
                     if child_name in deselected_children:
-                        print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
+                        # print(f"EXCLUDING {full_key} from report due to deselection.")  # DEBUG
                         return  # Skip adding this to the processed responses
                 else:
                     print(f"KEEPING {full_key}, not in deselected list.")  # Debugging
@@ -128,22 +154,30 @@ class Command(BaseCommand):
                 "label": matched_category['label'],
                 "full_key": full_key,
                 "is_anatomist": False,
-                "query": {},
+                "query": {
+                    "professional_health_program": professional_health_program,
+                    "primary_field": None,  # Placeholder for later filtering
+                    "subfield": None  # Placeholder for later filtering
+                },
                 "exclusions": set(deselected_children) if deselected_children else set()
             })
-            if len(category_parts) == 2:
-                professional_health_program = category_parts[1]
+            # if len(category_parts) == 2:
+            #     professional_health_program = category_parts[1]
 
-                # Check if an entry with this full_key already exists
-                if not any(entry["full_key"] == full_key for entry in processed_list):
-                    processed_list.append({
-                        "model": ProcessedResponseClinician,
-                        "label": matched_category['label'],
-                        "full_key": full_key,
-                        "is_anatomist": False,
-                        "query": {"professional_health_program": professional_health_program},
-                        "exclusions": set(deselected_children) if deselected_children else set()
-                    })
+            #     # Check if an entry with this full_key already exists
+            #     if not any(entry["full_key"] == full_key for entry in processed_list):
+            #         processed_list.append({
+            #             "model": ProcessedResponseClinician,
+            #             "label": matched_category['label'],
+            #             "full_key": full_key,
+            #             "is_anatomist": False,
+            #             "query": {
+            #                 "professional_health_program": professional_health_program,
+            #                 "primary_field": None,  # Placeholder for later filtering
+            #                 "subfield": None  # Placeholder for later filtering
+            #             },
+            #             "exclusions": set(deselected_children) if deselected_children else set()
+            #         })
 
 
 
@@ -242,13 +276,13 @@ class Command(BaseCommand):
                             if len(category_parts) > 1:  # This is a child category
                                 child_name = category_parts[1]
                                 if child_name in response.get("exclusions", set()):
-                                    print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
+                                    # print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
                                     continue  # Skip this child
                             processed_model, query = response['model'], response['query']
                             exclusions = response.get('exclusions', set())
 
                             exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
-                            print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
+                            # print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
                             responders = self.get_responders(response, exclusions, expanded_categories)
 
 
@@ -259,6 +293,11 @@ class Command(BaseCommand):
                                     subsubgroup_id=response_topic.id,
                                     professional_health_program__in=responder_programs
                                 )
+                                # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
+                                # print(f"Responder programs: {list(responder_programs)}")
+                                # print(f"Subsubgroup ID: {response_topic.id}")
+                                # print(f"Queryset count: {processed_response_qs.count()}")
+                                # print(f"Excluded children: {response.get('exclusions')}")
                             else:
                                 # For ResponderClinician and ProcessedResponseClinician
                                 responder_programs = responders.values_list('professional_health_program', flat=True)
@@ -266,6 +305,25 @@ class Command(BaseCommand):
                                     subsubgroup_id=response_topic.id,
                                     professional_health_program__in=responder_programs
                                 )
+                                # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
+                                # print(f"Responder programs: {list(responder_programs)}")
+                                # print(f"Subsubgroup ID: {response_topic.id}")
+                                # print(f"Queryset count: {processed_response_qs.count()}")
+                                # print(f"Excluded children: {response.get('exclusions')}")
+                                # print(f"Final QuerySet (Clinician): {processed_response_qs.query}")
+
+                                # If primary_field exists, further refine the query
+                                if response.get('query', {}).get('primary_field'):
+                                    processed_response_qs = processed_response_qs.filter(
+                                        primary_field=response['query']['primary_field']
+                                    )
+
+                                # If subfield exists, further refine the query
+                                if response.get('query', {}).get('subfield'):
+                                    processed_response_qs = processed_response_qs.filter(
+                                        subfield=response['query']['subfield']
+                                    )
+
 
                             if processed_response_qs.exists():
                                 abbr = expanded_categories[response['full_key']]['abbr']
@@ -310,7 +368,7 @@ class Command(BaseCommand):
 
                             # Calculate the count (number of responses for this category)
                             exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
-                            print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
+                            # print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
                             responders = self.get_responders(response, exclusions, expanded_categories)
 
 
@@ -324,8 +382,8 @@ class Command(BaseCommand):
 
                     elements_query = Element.objects.filter(topic=topic)
                     for element in elements_query:
-                        responsetopic = ResponseTopic.objects.filter(element=element).first()
-                        if responsetopic:
+                        response_topic = ResponseTopic.objects.filter(element=element).first()
+                        if response_topic:
                             row = [Paragraph(f"{element.name}", styles['Normal'])]
                             total_ratings = []
                             for response in processed_responses:
@@ -333,14 +391,14 @@ class Command(BaseCommand):
                                 if len(category_parts) > 1:  # This is a child category
                                     child_name = category_parts[1]
                                     if child_name in response.get("exclusions", set()):
-                                        print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
+                                        # print(f"Skipping {response['full_key']} in PDF generation due to deselection")  # Debugging
                                         continue  # Skip this child
 
                                 processed_model, query = response['model'], response['query']
                                 exclusions = response.get('exclusions', set())
 
                                 exclusions = response.get("exclusions", set())  # Retrieve stored exclusions
-                                print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
+                                # print(f"Filtering responders for {response['full_key']} - Excluding: {exclusions}")  # Debugging
                                 responders = self.get_responders(response, exclusions, expanded_categories)
 
 
@@ -348,16 +406,41 @@ class Command(BaseCommand):
                                     responder_programs = responders.values_list('professional_health_program',
                                                                                 flat=True)
                                     processed_response_qs = processed_model.objects.filter(
-                                        subsubgroup_id=responsetopic.id,
+                                        subsubgroup_id=response_topic.id,
                                         professional_health_program__in=responder_programs
                                     )
+                                    # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
+                                    # print(f"Responder programs: {list(responder_programs)}")
+                                    # print(f"Subsubgroup ID: {response_topic.id}")
+                                    # print(f"Queryset count: {processed_response_qs.count()}")
+                                    # print(f"Excluded children: {response.get('exclusions')}")
+
                                 else:
                                     responder_programs = responders.values_list('professional_health_program',
                                                                                 flat=True)
                                     processed_response_qs = processed_model.objects.filter(
-                                        subsubgroup_id=responsetopic.id,
+                                        subsubgroup_id=response_topic.id,
                                         professional_health_program__in=responder_programs
                                     )
+                                    # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
+                                    # print(f"Responder programs: {list(responder_programs)}")
+                                    # print(f"Subsubgroup ID: {response_topic.id}")
+                                    # print(f"Queryset count: {processed_response_qs.count()}")
+                                    # print(f"Excluded children: {response.get('exclusions')}")
+                                    # print(f"Final QuerySet (Clinician): {processed_response_qs.query}")
+
+                                    # If primary_field exists, further refine the query
+                                    if response.get('query', {}).get('primary_field'):
+                                        processed_response_qs = processed_response_qs.filter(
+                                            primary_field=response['query']['primary_field']
+                                        )
+
+                                    # If subfield exists, further refine the query
+                                    if response.get('query', {}).get('subfield'):
+                                        processed_response_qs = processed_response_qs.filter(
+                                            subfield=response['query']['subfield']
+                                        )
+
 
                                 if processed_response_qs.exists():
                                     avg_ratings = []
@@ -482,9 +565,8 @@ class Command(BaseCommand):
                     canvas.drawString(20 * mm, y_position, line)
                     y_position -= 10  # Move up for the next line
                     
-        
-        elements.append(PageBreak())
-        summary_data = [["Parent", "Children"]]
+        included_summary_data = [["Parent", "Included Children"]]
+        excluded_summary_data = [["Parent", "Excluded Children"]]
         
         # We'll map e.g. "Anatomist" -> set(["Dentistry", "Nursing"]) 
         # but also handle the case where we had "child=None"
@@ -503,29 +585,83 @@ class Command(BaseCommand):
                     parent_map[the_parent] = set()
                 parent_map[the_parent].add(child)
         
-        for parent, childset in parent_map.items():
-            excluded_children = next((col.get("deselected", []) for col in columns_array if col["parent"] == parent), [])
-            if not childset and not excluded_children:
-                summary_data.append([parent, "ALL children selected"])
-            elif excluded_children:
-                wrapped_style = ParagraphStyle(name="WrappedText", fontSize=10, leading=12, alignment=TA_LEFT, wordWrap="CJK")
+        wrapped_style = ParagraphStyle(name="WrappedText", fontSize=10, leading=12, alignment=TA_LEFT, wordWrap="CJK")
 
-                excluded_text = Paragraph(f"Excluded: {', '.join(sorted(excluded_children))}", wrapped_style)
-                summary_data.append([parent, excluded_text])
+        # Step 1: Get children with data in Processed tables
+        anatomist_children = set(
+            ProcessedResponseAnatomy.objects
+            .values_list('professional_health_program', flat=True)
+            .annotate(count=Count('id'))
+            .filter(count__gt=0)
+        )
+
+        clinician_children = set(
+            ProcessedResponseClinician.objects
+            .values_list('professional_health_program', flat=True)
+            .annotate(count=Count('id'))
+            .filter(count__gt=0)
+        )
+
+        # Build a map of all children per parent from the parsed structure
+        all_possible_children = {}
+        for col in columns_array:
+            parent = col.get("parent")
+            # Get all children under this parent from the parsed structure
+            if parent == "Anatomist":
+                children = [
+                    key.split(" / ")[-1]
+                    for key in expanded_categories
+                    if key.startswith("Anatomist /") and len(key.split(" / ")) == 2 and key.split(" / ")[-1] in anatomist_children
+                ]
+            elif parent == "Clinician":
+                children = [
+                    key.split(" / ")[-1]
+                    for key in expanded_categories
+                    if key.startswith("Clinician /") and len(key.split(" / ")) == 2 and key.split(" / ")[-1] in clinician_children
+                ]
             else:
-                print(f"SUMMARY: {parent} - Included: {', '.join(sorted(childset))}")  # DEBUG
-                summary_data.append([parent, ", ".join(sorted(childset))])
+                children = []  # fallback
+            all_possible_children[parent] = set(children)
+
+        for parent in all_possible_children:
+            excluded_children = set(next((col.get("deselected", []) for col in columns_array if col["parent"] == parent), []))
+            included_children = all_possible_children[parent] - excluded_children
+
+            # print(f"[SUMMARY] {parent} included: {included_children}")
+            # print(f"[SUMMARY] {parent} excluded: {excluded_children}")
+
+            if included_children:
+                included_text = Paragraph(", ".join(sorted(included_children)), wrapped_style)
+                included_summary_data.append([parent, included_text])
+            else:
+                included_summary_data.append([parent, Paragraph("None (all children excluded)", wrapped_style)])
+
+            if excluded_children:
+                excluded_text = Paragraph(", ".join(sorted(excluded_children)), wrapped_style)
+                excluded_summary_data.append([parent, excluded_text])
+
                     
-        summary_table = Table(summary_data, colWidths=[3*inch, 4*inch])
-        summary_table.setStyle(TableStyle([
+        centered_style = ParagraphStyle(name="CenteredText", parent=getSampleStyleSheet()["Heading2"], alignment=TA_CENTER)
+
+        # Included Table
+        elements.append(PageBreak())
+        elements.append(Paragraph("Summary of Included Children per Parent", centered_style))
+        included_table = Table(included_summary_data, colWidths=[3 * inch, 4 * inch])
+        included_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ]))
+        elements.append(included_table)
 
-        centered_style = ParagraphStyle(name="CenteredText", parent=getSampleStyleSheet()["Heading2"], alignment=TA_CENTER)
-        elements.append(Paragraph("Summary of Parent-Child expansions", centered_style))
-        
-        elements.append(summary_table)
+        # Excluded Table
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("Summary of Excluded Children per Parent", centered_style))
+        excluded_table = Table(excluded_summary_data, colWidths=[3 * inch, 4 * inch])
+        excluded_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(excluded_table)        
 
         # Add a Color Key Section at the End
         elements.append(Spacer(1, 12))
@@ -588,6 +724,13 @@ class Command(BaseCommand):
                 responders = responders.filter(
                     professional_health_program=response['query']['professional_health_program']
                 )
+
+            if 'primary_field' in response['query'] and response['query']['primary_field']:
+                responders = responders.filter(primary_field=response['query']['primary_field'])
+
+            if 'subfield' in response['query'] and response['query']['subfield']:
+                responders = responders.filter(subfield=response['query']['subfield'])
+
             # Exclude responders from deselected subcategories
             if exclusions:
                 # Exclude based on primary_field or professional_health_program
@@ -610,4 +753,9 @@ class Command(BaseCommand):
                 for eq in exclusion_queries:
                     exclusion_filter |= Q(**eq)
                 responders = responders.exclude(exclusion_filter)
+
+        # print(f"Responders for {response['full_key']} (after exclusions):")
+        for r in responders:
+            print(f" - {r.professional_health_program} | {getattr(r, 'primary_field', '')} | {getattr(r, 'subfield', '')}")
+
         return responders

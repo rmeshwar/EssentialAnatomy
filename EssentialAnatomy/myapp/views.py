@@ -36,7 +36,10 @@ def generate_report_view(request):
             download_url = settings.STATIC_URL + 'survey_report_combined.pdf'
             return JsonResponse({"download_url": download_url})
         except Exception as e:
+            print("Exception occurred in generate_report view:")
+            traceback.print_exc()  # Logs full traceback to terminal
             return JsonResponse({"error": str(e)}, status=500)
+            
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
 def get_filtered_disciplines(request):
