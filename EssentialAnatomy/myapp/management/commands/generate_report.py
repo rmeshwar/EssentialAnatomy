@@ -664,7 +664,7 @@ class Command(BaseCommand):
 
         # Included Table
         elements.append(PageBreak())
-        elements.append(Paragraph("Summary of Included Children per Parent", centered_style))
+        elements.append(Paragraph("Included Disciplines", centered_style))
         included_table = Table(included_summary_data, colWidths=[3 * inch, 4 * inch])
         included_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -674,7 +674,7 @@ class Command(BaseCommand):
 
         # Excluded Table
         elements.append(Spacer(1, 20))
-        elements.append(Paragraph("Summary of Excluded Children per Parent", centered_style))
+        elements.append(Paragraph("Excluded Disciplines", centered_style))
         excluded_table = Table(excluded_summary_data, colWidths=[3 * inch, 4 * inch])
         excluded_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
