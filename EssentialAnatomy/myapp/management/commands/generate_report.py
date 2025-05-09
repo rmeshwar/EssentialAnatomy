@@ -40,7 +40,11 @@ class Command(BaseCommand):
         
         profession = form_data.get('profession', '')
         columns_array = form_data.get('columns', [])
-        selected_regions = form_data.get('regions', [])
+        regions_list = form_data.get('regions', [])
+        selected_section_names = [obj['parent'] for obj in regions_list]
+        subsection_exclude_map = {
+            obj['parent']: set(obj.get('deselected', [])) for obj in regions_list
+        }
 
         if not profession:
             self.stdout.write(self.style.ERROR("No profession selected; cannot generate report."))
@@ -62,15 +66,9 @@ class Command(BaseCommand):
         processed_responses = []
 
         for col in columns_array:
-            parent = col.get("parent")
-            child = col.get("child")  # might be None
+            # We now expect each JS entry to carry its own full_key
+            full_key = col.get("full_key")
             deselected_children = col.get("deselected", None)
-
-            # Build a full_key string like "Anatomist" or "Anatomist / Dentistry"
-            if child:
-                full_key = f"{parent} / {child}"
-            else:
-                full_key = parent
 
             print(f"Processing {full_key} - Deselected: {deselected_children}")
             self.add_processed_response(full_key, processed_responses, expanded_categories, deselected_children)
@@ -88,10 +86,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("No valid categories found to generate a report."))
             return
 
-        self.selected_regions = selected_regions  # Not used by default, but could be integrated in the future
-
-        # The rest is the original PDF generation logic
-        self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map, columns_array)
+        # Call PDF generator with new region-selection info
+        self.generate_pdf_report(processed_responses, expanded_categories, abbreviations_map, columns_array, selected_section_names, subsection_exclude_map)
 
     
     def add_processed_response(self, full_key, processed_list, expanded, deselected_children=None):
@@ -138,41 +134,38 @@ class Command(BaseCommand):
             })
         elif category_parts[0] == "Clinician":
             professional_health_program = category_parts[1] if len(category_parts) > 1 else None
+            primary_field              = category_parts[2] if len(category_parts) > 2 else None
+            subfield                   = category_parts[3] if len(category_parts) > 3 else None
 
+            # If a parent‑level entry with exclusions, figure out if we should skip …
             if len(category_parts) == 1 and deselected_children is not None:
-                # Check if all children are excluded
                 all_children = {
                     key.split(" / ")[1]
                     for key in expanded
-                    if key.startswith("Clinician /") and len(key.split(" / ")) == 2
+                    if key.startswith("Clinician /") and len(key.split(" / ")) >= 2
                 }
                 if set(deselected_children) >= all_children:
-                    print(f"EXCLUDING {full_key} entirely because all children were deselected")  # DEBUG
+                    return  # everything deselected
+
+            # Honour deselections for specialty / subspecialty rows
+            if deselected_children and len(category_parts) > 1:
+                child_name = category_parts[1]
+                if child_name in deselected_children:
                     return
 
-            if deselected_children:
-                if len(category_parts) > 1:
-                    child_name = category_parts[1]
-                    if child_name in deselected_children:
-                        return
-                else:
-                    print(f"KEEPING {full_key}, not in deselected list.")  # Debugging
-
-            print(f"ADDING {full_key} to processed_responses")  # DEBUG
             processed_list.append({
-                "model": ProcessedResponseClinician,
-                "label": matched_category['label'],
-                "full_key": full_key,
+                "model" : ProcessedResponseClinician,
+                "label" : matched_category['label'],
+                "full_key" : full_key,
                 "is_anatomist": False,
-                # NEW:
                 "query": {
                     **({"professional_health_program": professional_health_program} if professional_health_program else {}),
-                    "primary_field": None,
-                    "subfield": None
+                    "primary_field": primary_field,
+                    "subfield": subfield
                 },
-
                 "exclusions": set(deselected_children) if deselected_children else set()
             })
+
 
             # if len(category_parts) == 2:
             #     professional_health_program = category_parts[1]
@@ -223,7 +216,7 @@ class Command(BaseCommand):
 
         return expanded, abbreviations_map
 
-    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map, columns_array):
+    def generate_pdf_report(self, processed_responses, expanded_categories, abbreviations_map, columns_array, selected_section_names, subsection_exclude_map):
         def get_color_for_rating(rating):
             """Return a specific color for each rating range using the provided hex values."""
             if 1 <= rating <= 2.5:
@@ -254,10 +247,7 @@ class Command(BaseCommand):
         col_widths = [first_col_width] + [other_col_width] * (len(processed_responses) + 1)
 
         # Build the report table data
-        if self.selected_regions:
-            sections = Section.objects.filter(name__in=self.selected_regions)
-        else:
-            sections = Section.objects.all()
+        sections = Section.objects.filter(name__in=selected_section_names)
         section_indices = []
         abbreviations_used = set()
 
@@ -271,6 +261,9 @@ class Command(BaseCommand):
 
             subsections = Subsection.objects.filter(section=section)
             for subsection in subsections:
+                # Exclusion for unselected subsections
+                if subsection.name in subsection_exclude_map.get(section.name, set()):
+                    continue
                 subsection_index = len(section_data)
                 subsection_indices.append(subsection_index)
 
@@ -285,6 +278,8 @@ class Command(BaseCommand):
                         row = [Paragraph(f"{response_topic.name}", styles['Normal'])]
                         total_ratings = []
                         for response in processed_responses:
+                            print(f"DEBUG – Full key: {response['full_key']}")
+                            print(f"DEBUG – Query args: {response['query']}")
                             category_parts = response["full_key"].split(" / ")
                             if len(category_parts) > 1:  # This is a child category
                                 child_name = category_parts[1]
@@ -312,30 +307,17 @@ class Command(BaseCommand):
                                 # print(f"Queryset count: {processed_response_qs.count()}")
                                 # print(f"Excluded children: {response.get('exclusions')}")
                             else:
-                                # For ResponderClinician and ProcessedResponseClinician
-                                responder_programs = responders.values_list('professional_health_program', flat=True)
-                                processed_response_qs = processed_model.objects.filter(
-                                    subsubgroup_id=response_topic.id,
-                                    professional_health_program__in=responder_programs
-                                )
-                                # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
-                                # print(f"Responder programs: {list(responder_programs)}")
-                                # print(f"Subsubgroup ID: {response_topic.id}")
-                                # print(f"Queryset count: {processed_response_qs.count()}")
-                                # print(f"Excluded children: {response.get('exclusions')}")
-                                # print(f"Final QuerySet (Clinician): {processed_response_qs.query}")
+                                # NEW: direct filter on ProcessedResponseClinician
+                                filter_args = {
+                                    'subsubgroup_id': response_topic.id,
+                                    'professional_health_program': response['query']['professional_health_program']
+                                }
+                                if response['query'].get('primary_field'):
+                                    filter_args['primary_field'] = response['query']['primary_field']
+                                if response['query'].get('subfield'):
+                                    filter_args['subfield'] = response['query']['subfield']
 
-                                # If primary_field exists, further refine the query
-                                if response.get('query', {}).get('primary_field'):
-                                    processed_response_qs = processed_response_qs.filter(
-                                        primary_field=response['query']['primary_field']
-                                    )
-
-                                # If subfield exists, further refine the query
-                                if response.get('query', {}).get('subfield'):
-                                    processed_response_qs = processed_response_qs.filter(
-                                        subfield=response['query']['subfield']
-                                    )
+                                processed_response_qs = processed_model.objects.filter(**filter_args)
 
 
                             if processed_response_qs.exists():
@@ -429,30 +411,18 @@ class Command(BaseCommand):
                                     # print(f"Excluded children: {response.get('exclusions')}")
 
                                 else:
-                                    responder_programs = responders.values_list('professional_health_program',
-                                                                                flat=True)
-                                    processed_response_qs = processed_model.objects.filter(
-                                        subsubgroup_id=response_topic.id,
-                                        professional_health_program__in=responder_programs
-                                    )
-                                    # print(f"\n--- DEBUG: Processing {response['full_key']} ---")
-                                    # print(f"Responder programs: {list(responder_programs)}")
-                                    # print(f"Subsubgroup ID: {response_topic.id}")
-                                    # print(f"Queryset count: {processed_response_qs.count()}")
-                                    # print(f"Excluded children: {response.get('exclusions')}")
-                                    # print(f"Final QuerySet (Clinician): {processed_response_qs.query}")
+                                    # NEW: direct filter on ProcessedResponseClinician
+                                    filter_args = {
+                                        'subsubgroup_id': response_topic.id,
+                                        'professional_health_program': response['query']['professional_health_program']
+                                    }
+                                    if response['query'].get('primary_field'):
+                                        filter_args['primary_field'] = response['query']['primary_field']
+                                    if response['query'].get('subfield'):
+                                        filter_args['subfield'] = response['query']['subfield']
 
-                                    # If primary_field exists, further refine the query
-                                    if response.get('query', {}).get('primary_field'):
-                                        processed_response_qs = processed_response_qs.filter(
-                                            primary_field=response['query']['primary_field']
-                                        )
+                                    processed_response_qs = processed_model.objects.filter(**filter_args)
 
-                                    # If subfield exists, further refine the query
-                                    if response.get('query', {}).get('subfield'):
-                                        processed_response_qs = processed_response_qs.filter(
-                                            subfield=response['query']['subfield']
-                                        )
 
 
                                 if processed_response_qs.exists():

@@ -40,44 +40,41 @@
         <!-- First Question: Direct Children / Disciplines -->
         <div class="form active" id="page1">
             <p>Select the direct children to review (based on your profession):</p>
-            <!-- For single role (clinician or anatomist) usage -->
+
             <div id="disciplineOptions" class="mb-3"></div>
 
-            <!-- For "both" usage, we separate them: -->
             <div id="anatomistContainer" class="mb-3" style="display: none;">
-            <h4>Anatomist Responses</h4>
-            <label>
-                <input type="checkbox" id="anatomistParent" data-role="anatomistParent">
-                Select All Anatomist
-            </label>
-            <div id="anatomistChildren" style="margin-left: 20px;"></div>
+                <h4>Anatomist Responses</h4>
+                <label>
+                    <input type="checkbox" id="anatomistParent" data-role="anatomistParent">
+                    Select All Anatomist
+                </label>
+                <div id="anatomistChildren" style="margin-left: 20px;"></div>
             </div>
 
             <div id="clinicianContainer" class="mb-3" style="display: none;">
-            <h4>Clinician Responses</h4>
-            <label>
-                <input type="checkbox" id="clinicianParent" data-role="clinicianParent">
-                Select All Clinician
-            </label>
-            <div id="clinicianChildren" style="margin-left: 20px;"></div>
+                <h4>Clinician Responses</h4>
+                <label>
+                    <input type="checkbox" id="clinicianParent" data-role="clinicianParent">
+                    Select All Clinician
+                </label>
+                <div id="clinicianChildren" style="margin-left: 20px;"></div>
             </div>
 
+            <!-- Next button now belongs to *page1*, not nested in clinicianContainer -->
             <button class="nextBtn btn btn-primary" onclick="nextPage(2)">Next</button>
-        </div>
+        </div> <!-- *** Now we properly close #page1 *** -->
 
-        <!-- Third Question: Body Regions -->
+        <!-- Second Question: Body Regions -->
         <div class="form" id="page2">
             <p>Select the anatomical regions you wish to review:</p>
-            <label><input type="checkbox" name="region" value="Back"> Back</label><br/>
-            <label><input type="checkbox" name="region" value="Upper Limb"> Upper Limb</label><br/>
-            <label><input type="checkbox" name="region" value="Lower Limb"> Lower Limb</label><br/>
-            <label><input type="checkbox" name="region" value="Thorax"> Thorax</label><br/>
-            <label><input type="checkbox" name="region" value="Abdomen"> Abdomen</label><br/>
-            <label><input type="checkbox" name="region" value="Pelvis & Perineum"> Pelvis and Perineum</label><br/>
-            <label><input type="checkbox" name="region" value="Head & Neck"> Head and Neck</label><br/>
+
+            <!-- this is where your JS will inject all the region checkboxes -->
+            <div id="regionOptions"></div>
 
             <button class="submit btn btn-success mt-3" id="submitSelections">Submit</button>
         </div>
+
     </div>
     <!-- Form Ends -->
 
@@ -94,6 +91,7 @@
     <!-- Footer Ends -->
 
     <script>
+        const SECTIONS_API = "{% url 'api_sections' %}";
         const PARSED_STRUCTURE_URL = "{% static 'data/parsed_structure.json' %}?v=2";
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

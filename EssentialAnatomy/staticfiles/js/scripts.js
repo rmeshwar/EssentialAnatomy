@@ -6,29 +6,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     loadDisciplines();
     loadRegions();
-    
-
 
     fetch("/api/clinician_specialties/")
     .then(r => r.json())
     .then(data => {
         clinicianSpecialtyMap = data;
         buildClinicianSpecialtyUI();     // build once we have the PHP list
-
-        document.querySelectorAll(".child-clin").forEach(chk => {
-            chk.addEventListener("change", function() {
-              const php = this.value;
-              document.querySelectorAll(
-                `.spec-checkbox[data-php="${php}"], .subspec-checkbox[data-php="${php}"]`
-              ).forEach(box => box.checked = this.checked);
-            });
-          });
     })
     .catch(err => console.error("Could not load clinician specialties", err));
 
 
     window.nextPage = function(pageNumber) {
-        console.log("▶ DEBUG nextPage() called with:", pageNumber);
         showPage(pageNumber);
     };
 
@@ -37,28 +25,11 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     function showPage(pageNumber) {
-        console.log(
-          "▶ DEBUG showPage():",
-          "pageNumber =", pageNumber,
-          "hiding →", [...document.querySelectorAll(".form")].map(f=>f.id)
-        );
-      
-        // remove .active from *all* pages
         document.querySelectorAll(".form").forEach(page => {
-          page.classList.remove("active");
+            page.classList.remove("active");
         });
-      
-        // now add it back to the one we want
-        const el = document.getElementById(`page${pageNumber}`);
-        if (!el) {
-          console.error(`!! No element found with id="page${pageNumber}"`);
-          return;
-        }
-        el.classList.add("active");
-        console.log(`    → added .active to #page${pageNumber}`);
-      }
-      
-    
+        document.getElementById(`page${pageNumber}`).classList.add("active");
+    }
 
     function loadRegions() {
         fetch(SECTIONS_API)
@@ -99,8 +70,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
     
                 attachRegionEvents();
-
-                console.log("DEBUG: Regions initialized:", document.getElementById("regionOptions").innerHTML);
             })
             .catch(err => console.error("Could not load regions", err));
     }
@@ -149,68 +118,57 @@ document.addEventListener("DOMContentLoaded", function() {
     
 
     function buildClinicianSpecialtyUI() {
-        // For each Clinician checkbox, insert its specialties right below it
-        document.querySelectorAll(".child-clin").forEach(chk => {
-          const php = chk.value;
-          const specs = clinicianSpecialtyMap[php];
-          if (!specs) return;                     // no data → skip
-      
-          // find the <label> wrapping this PHP checkbox
-          const parentLabel = chk.closest("label");
-          // container for this PHP’s specialties
-          const specContainer = document.createElement("div");
-          specContainer.style.marginLeft = "25px";
-      
-          // iterate only real specialties (skip spec === "nan")
-          Object.entries(specs)
-            .filter(([spec]) => spec !== "nan")
-            .forEach(([spec, subs]) => {
-              // spec checkbox
-              const specId = `spec-${php.replace(/\s+/g,"_")}-${spec.replace(/\s+/g,"_")}`;
-              const specLabel = document.createElement("label");
-              specLabel.innerHTML = `
-                <input
-                  type="checkbox"
-                  class="spec-checkbox"
-                  data-php="${php}"
-                  value="${spec}"
-                  id="${specId}">
-                ${spec}
-              `;
-              specContainer.appendChild(specLabel);
-              specContainer.appendChild(document.createElement("br"));
-      
-              // subspecialties (skip sub === "nan")
-              subs
-                .filter(sub => sub !== "nan")
-                .forEach(sub => {
-                  const subId = `subspec-${php.replace(/\s+/g,"_")}-${spec.replace(/\s+/g,"_")}-${sub.replace(/\s+/g,"_")}`;
-                  const subLabel = document.createElement("label");
-                  subLabel.style.marginLeft = "20px";
-                  subLabel.innerHTML = `
-                    <input
-                      type="checkbox"
-                      class="subspec-checkbox"
-                      data-php="${php}"
-                      data-spec="${spec}"
-                      value="${sub}"
-                      id="${subId}">
-                    ${sub}
-                  `;
-                  specContainer.appendChild(subLabel);
-                  specContainer.appendChild(document.createElement("br"));
-                });
+        const wrap = document.getElementById("clinicianSpecialtyOptions");
+        wrap.innerHTML = "";
+    
+        Object.entries(clinicianSpecialtyMap).forEach(([php, specs]) => {
+            // PHP heading (appears only if the PHP itself is present in the child list)
+            if (!document.querySelector(`.child-clin[value="${php}"]`)) return;
+    
+            const phpDivId = `spec-${php.replace(/\s+/g,"_")}`;
+            wrap.insertAdjacentHTML("beforeend", `
+                <label class="fw-bold">
+                  <input type="checkbox" class="spec-php-parent" data-php="${php}">
+                  ${php} &nbsp;<em>(all specialties)</em>
+                </label><br/>
+                <div id="${phpDivId}" class="spec-php-children" style="margin-left:25px"></div>
+            `);
+    
+            const inner = document.getElementById(phpDivId);
+            Object.entries(specs).forEach(([spec, subs]) => {
+                const specId = `spec-${php}-${spec}`.replace(/\s+/g,"_");
+                inner.insertAdjacentHTML("beforeend", `
+                    <label>
+                      <input type="checkbox" class="spec-checkbox"
+                             data-php="${php}" value="${spec}"
+                             id="${specId}">
+                      ${spec}
+                    </label><br/>
+                `);
+                if (subs.length) {
+                    const subDivId = `${specId}-subs`;
+                    inner.insertAdjacentHTML("beforeend", `<div id="${subDivId}" style="margin-left:25px"></div>`);
+                    const subDiv = document.getElementById(subDivId);
+                    subs.forEach(sub => {
+                        subDiv.insertAdjacentHTML("beforeend", `
+                            <label>
+                              <input type="checkbox" class="subspec-checkbox"
+                                     data-php="${php}" data-spec="${spec}" value="${sub}">
+                              ${sub}
+                            </label><br/>
+                        `);
+                    });
+                }
             });
-      
-          // insert the whole container immediately after the PHP label
-          parentLabel.after(specContainer);
         });
-      
-        // wire up “select all specs” and “select all subspecs”
+    
+        // show container only if there is at least one PHP with specialties
+        document.getElementById("clinicianSpecialtyContainer").style.display =
+            wrap.children.length ? "block" : "none";
+    
+        // parents ↔ children sync
         attachSpecialtyEvents();
-      }
-      
-      
+    }
     
 
     function getTotalSelectedColumns(){
@@ -367,21 +325,25 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // Pull in each checked specialty as a full_key
+        // ---- NEW: clinician specialties / subspecialties ----
         document.querySelectorAll(".spec-checkbox:checked").forEach(sp => {
             const php  = sp.dataset.php;
             const spec = sp.value;
-            const fullKey = `Clinician / ${php} / ${spec}`;
-            finalColumns.push({ full_key: fullKey });
+            const grandKey = `${php} / ${spec}`;
+            finalColumns.push({ parent:"Clinician", child:php, grandchild:spec });
         });
-        
-        // Pull in each checked subspecialty as its own full_key
+
+        // add individual subspecialties (only if they are NOT implicitly selected above)
         document.querySelectorAll(".subspec-checkbox:checked").forEach(ss => {
             const php  = ss.dataset.php;
             const spec = ss.dataset.spec;
             const sub  = ss.value;
-            const fullKey = `Clinician / ${php} / ${spec} / ${sub}`;
-             finalColumns.push({ full_key: fullKey });
+
+            // skip if parent specialty is already selected
+            const parentSpecChecked = document.querySelector(`.spec-checkbox[data-php="${php}"][value="${spec}"]`)?.checked;
+            if (parentSpecChecked) return;
+
+            finalColumns.push({ parent:"Clinician", child:php, grandchild:spec, greatgrandchild:sub });
         });
 
 
@@ -391,8 +353,6 @@ document.addEventListener("DOMContentLoaded", function() {
             columns: finalColumns,
             regions: regionPayload
         };
-
-        console.log("FINAL PAYLOAD ▶", payload);
 
         // CHANGED: We do an AJAX POST to /generate-report/ with our new structure
         fetch("/generate-report/", {
@@ -428,22 +388,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Parent check event listeners
     ["anatomistParent", "clinicianParent"].forEach(parentId => {
-        const el = document.getElementById(parentId);
-        if (!el) return;
-        el.addEventListener("change", function() {
-          const on = this.checked;
-          if (parentId === "anatomistParent") {
-            document.querySelectorAll(".child-anat").forEach(c => c.checked = on);
-          } else {
-            // Toggle PHP + all their specs + subspecs
-            document.querySelectorAll(
-              ".child-clin, .spec-checkbox, .subspec-checkbox"
-            ).forEach(c => c.checked = on);
-          }
-        });
-      });
-      
-  
+        const parentElement = document.getElementById(parentId);
+        if (parentElement) {
+            parentElement.addEventListener("change", function() {
+                const isChecked = this.checked;
+                document.querySelectorAll(`.${parentId === "anatomistParent" ? "child-anat" : "child-clin"}`)
+                    .forEach(chk => chk.checked = isChecked);
+            });
+        }
+    });
 
     // Limit selection to 9 columns
     document.addEventListener("change", function(e) {
